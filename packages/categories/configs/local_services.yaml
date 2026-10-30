@@ -1,0 +1,19 @@
+category: local_services
+name: Local services (salons, repairs, tutors, gyms, rentals)
+rails: [payment_proof, merchant_receipt]
+aspects: [result, punctuality, honest_pricing, behaviour]
+followups: [7d, 30d]
+item_noun: service
+recency_days: 30
+decay_half_life_days: 180
+publish:
+  level: merchant
+  delay: random_0_24h
+  date_granularity: week
+item_must_be_in_proof: false
+rules:
+  - Day 30 asks whether the repair held.
+prompt:
+  en: What service did you get and how did it go? Result, punctuality, honest pricing, behaviour.
+  hi: आपने कौन सी सेवा ली और कैसी रही? नतीजा, समय पर, सही दाम, व्यवहार।
+keywords: [salon, haircut, barber, repair, plumber, electrician, tutor, gym, spa, massage, laundry, scooter rental, bike rental, scooter, tailor, mechanic, service]

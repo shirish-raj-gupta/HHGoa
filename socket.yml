@@ -1,0 +1,14 @@
+# Socket (socket.dev): supply-chain checks on every dependency change. The GitHub app reads this file once the repo
+# is on GitHub and the app is installed; the CLI and Socket Firewall need no config. Schema: docs.socket.dev/docs/socket-yml
+version: 2
+
+# Local data and private notes hold no manifests worth scanning (node_modules is ignored by default).
+projectIgnorePaths:
+  - '.data'
+  - 'docs/private'
+
+githubApp:
+  enabled: true
+  pullRequestAlertsEnabled: true
+  dependencyOverviewEnabled: true
+  projectReportsEnabled: true

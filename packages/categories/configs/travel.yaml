@@ -1,0 +1,21 @@
+category: travel
+name: Travel (flights, trains, buses, hotels, cabs)
+rails: [order_email, order_page]
+aspects: [punctuality, cleanliness, staff, safety, value]
+followups: [trip_end]
+item_noun: trip or stay
+recency_days: 60
+decay_half_life_days: 180
+publish:
+  level: item
+  delay: after_travel_date
+  date_granularity: day
+  redact_booking_refs: true
+item_must_be_in_proof: true
+rules:
+  - Never publish booking IDs or PNRs.
+  - Reviews open after the travel date.
+prompt:
+  en: How was the trip or the stay? Punctuality, cleanliness, staff, safety, value.
+  hi: यात्रा या ठहरना कैसा रहा? समय पर, सफ़ाई, स्टाफ़, सुरक्षा, कीमत।
+keywords: [hotel, stay, resort, airbnb, villa, hostel, homestay, room, flight, airline, indigo, train, irctc, bus, cab, uber, ola, rapido, taxi, airport, quiet, remote work, wifi, work from]

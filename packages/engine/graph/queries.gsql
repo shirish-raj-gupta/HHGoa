@@ -1,0 +1,47 @@
+# Ring and funding queries used by the trust job and the investigator agent. Install after schema.gsql:
+#   gsql -g Receipts queries.gsql && gsql -g Receipts "INSTALL QUERY ALL"
+
+USE GRAPH Receipts
+
+# Connected components over strong CO_REVIEWED edges (Jaccard >= min_jaccard); returns components with min_members+.
+CREATE QUERY receipts_rings(FLOAT min_jaccard = 0.5, INT min_members = 4) FOR GRAPH Receipts {
+  MinAccum<VERTEX> @cc;
+  MapAccum<VERTEX, SetAccum<VERTEX>> @@components;
+  OrAccum @@changed = TRUE;
+
+  Start = {Reviewer.*};
+  Start = SELECT s FROM Start:s POST-ACCUM s.@cc = s;
+  WHILE @@changed LIMIT 50 DO
+    @@changed = FALSE;
+    Start = SELECT t FROM Start:s -(CO_REVIEWED:e)- Reviewer:t
+            WHERE e.jaccard >= min_jaccard
+            ACCUM t.@cc += s.@cc
+            POST-ACCUM IF t.@cc != t.@cc' THEN @@changed += TRUE END;
+  END;
+  All = {Reviewer.*};
+  All = SELECT s FROM All:s -(CO_REVIEWED:e)- Reviewer:t WHERE e.jaccard >= min_jaccard ACCUM @@components += (s.@cc -> s);
+  FOREACH (root, members) IN @@components DO
+    IF members.size() >= min_members THEN PRINT root, members; END;
+  END;
+}
+
+# Who funded these reviewers' payout wallets, up to two hops back.
+CREATE QUERY receipts_funders(SET<VERTEX<Reviewer>> reviewers) FOR GRAPH Receipts {
+  SetAccum<VERTEX<Wallet>> @@funders;
+  Start = {reviewers};
+  Wallets = SELECT w FROM Start:s -(PAID_TO>)- Wallet:w;
+  Hop1 = SELECT f FROM Wallets:w -(FUNDED_BY>:e)- Wallet:f ACCUM @@funders += f;
+  Hop2 = SELECT g FROM Hop1:f -(FUNDED_BY>:e)- Wallet:g ACCUM @@funders += g;
+  PRINT @@funders;
+}
+
+# Everything a cluster reviewed, with the merchants behind the items.
+CREATE QUERY receipts_cluster_items(SET<VERTEX<Reviewer>> reviewers) FOR GRAPH Receipts {
+  SumAccum<INT> @members;
+  Start = {reviewers};
+  Reviews = SELECT r FROM Start:s -(WROTE>)- Review:r;
+  Items = SELECT i FROM Reviews:r -(ABOUT>)- Item:i ACCUM i.@members += 1;
+  Items = SELECT i FROM Items:i WHERE i.@members >= 2;
+  Merchants = SELECT m FROM Items:i -(SOLD_BY>)- Merchant:m;
+  PRINT Items, Merchants;
+}

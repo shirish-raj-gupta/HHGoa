@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+@import '@receipts/react/theme.css';
+
+/* Classes used inside the shared package. */
+@source '../../../../packages/react/src';

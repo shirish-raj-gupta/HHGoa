@@ -1,0 +1,41 @@
+# Local services for running like production (the default `pnpm dev` needs none of this: it uses PGlite).
+#   docker compose -f infra/docker-compose.yml up -d db
+#   DATABASE_URL=postgres://receipts:receipts@localhost:5432/receipts pnpm db:migrate && pnpm db:seed
+# TigerGraph Community Edition is optional (the trust engine runs its graph checks in Postgres without it):
+#   docker compose -f infra/docker-compose.yml --profile graph up -d tigergraph
+
+name: receipts
+
+services:
+  db:
+    build: ./postgres
+    environment:
+      POSTGRES_USER: receipts
+      POSTGRES_PASSWORD: receipts
+      POSTGRES_DB: receipts
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U receipts -d receipts']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  tigergraph:
+    profiles: ['graph']
+    image: tigergraph/community:4.2.5
+    ports:
+      - '14240:14240'
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    volumes:
+      - tgdata:/home/tigergraph/tigergraph/data
+      - ../packages/engine/graph:/home/tigergraph/receipts-graph:ro
+
+volumes:
+  pgdata:
+  tgdata:

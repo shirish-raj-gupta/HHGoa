@@ -1,0 +1,20 @@
+category: groceries
+name: Groceries and quick commerce
+rails: [order_email, order_page, payment_proof]
+aspects: [freshness, accuracy, substitutions, delivery_time]
+followups: [1d]
+item_noun: store
+recency_days: 14
+decay_half_life_days: 60
+publish:
+  level: merchant
+  delay: none
+  date_granularity: day
+item_must_be_in_proof: false
+rate_platform_separately: true
+rules:
+  - The store and the platform are rated separately.
+prompt:
+  en: How was the order? Freshness, missing items, substitutions, delivery time.
+  hi: ऑर्डर कैसा रहा? ताज़गी, कोई सामान छूटा, बदला गया सामान, डिलीवरी का समय।
+keywords: [grocery, groceries, blinkit, zepto, instamart, bigbasket, vegetables, fruits, milk, essentials, quick commerce, dark store]

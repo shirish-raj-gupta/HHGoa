@@ -1,0 +1,30 @@
+# Install through Socket Firewall (blocks confirmed-malicious packages at any depth), then typecheck and test.
+# No pnpm cache on purpose: packages served from a cache never pass through the firewall.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: socketdev/action@v1
+        with:
+          mode: firewall
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.15.0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: sfw pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test

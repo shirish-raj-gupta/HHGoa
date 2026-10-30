@@ -1,0 +1,28 @@
+{
+  "84532": {
+    "chainId": 84532,
+    "eas": "0x4200000000000000000000000000000000000021",
+    "schemaRegistry": "0x4200000000000000000000000000000000000020",
+    "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "personhoodRegistry": "0x1994b5ce01978623a834677dee55491ad7fd51f9",
+    "resolver": "0xe2a3ff5937b3388e7624ba7492faf44253b20758",
+    "payoutDistributor": "0x8f715d9eab95e252479dd58dfe917f2832d877b6",
+    "reputation": "0x0c50f80a4549cdd180c09c1939855c805e55d707",
+    "schemas": {
+      "review": "0xec25a427006e73f5398784bc63bf36a416cef7d82c7440679cdc156da03e5082",
+      "followUp": "0x4b9ca73028bd85cc6b7b8c03b26879170e8d6991b440eef774041fef36830f93",
+      "reply": "0xb50d0cb74d67775886474ee0386317991e075a602393be45e4d81654216696a9",
+      "merchant": "0x468df09886ee1146073aede894a3e71cad2bf1d40ade3ce3c21a222bb020c715",
+      "reputation": "0x352b8d09a87dd1e5470eea33cf7476b6eb13f1b0ab890656a8d4117ad052dc7f"
+    },
+    "roles": {
+      "verifier": "0xb53B858a5373c1F25460BF78F3dAe23ad4bd493a",
+      "trustEngine": "0xb53B858a5373c1F25460BF78F3dAe23ad4bd493a",
+      "rootPoster": "0xb53B858a5373c1F25460BF78F3dAe23ad4bd493a",
+      "admin": "0xb53B858a5373c1F25460BF78F3dAe23ad4bd493a"
+    },
+    "deployer": "0xb53B858a5373c1F25460BF78F3dAe23ad4bd493a",
+    "deployedAt": "2026-10-28T12:32:03.872Z",
+    "blockNumber": "51344274"
+  }
+}

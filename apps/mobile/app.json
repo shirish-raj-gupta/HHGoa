@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Receipts",
+    "slug": "receipts",
+    "scheme": "receipts",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.example.receipts",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.example.receipts",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FDFAF3"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Receipts scans the QR code on your bill to prove what you bought.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Receipts records a 15-second voice review. The audio is deleted after seven days; only the text is published."
+        }
+      ],
+      "expo-notifications"
+    ],
+    "icon": "./assets/icon.png"
+  }
+}

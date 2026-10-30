@@ -1,0 +1,29 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Expo and React Native want a flat node_modules; Next.js and Node are fine with it too.
+nodeLinker: hoisted
+
+# Install scripts: only esbuild needs one. The native addons fall back to JS; the rest are telemetry or notices.
+allowBuilds:
+  '@google/genai': false
+  '@reown/appkit': false
+  blake-hash: false
+  bufferutil: false
+  esbuild: true
+  keccak: false
+  protobufjs: false
+  utf-8-validate: false
+
+# Two SDKs pin forks hosted on GitHub. pnpm blocks git-hosted sub-dependencies by default, so these
+# point at the registry releases instead. If Self or ZK Email proofs misbehave, check these first.
+overrides:
+  "@zk-email/helpers>snarkjs": "^0.7.5"
+  "@selfxyz/common>node-forge": "^1.3.1"
+  # tevm (in-memory EVM for contract tests and CHAIN=local): @tevm/actions rc.153 imports an error class no
+  # published @tevm/errors 1.x has, so the whole set stays on rc.151.
+  "@tevm/actions": "1.0.0-rc.151"
+
+minimumReleaseAgeExclude:
+  - lucide-react@1.63.0

@@ -1,0 +1,28 @@
+category: landlords
+name: Landlords and rentals
+# payment_proof covers 3+ months of rent; order_email covers rent-receipt emails.
+rails: [payment_proof, order_email]
+min_proof:
+  payments: 3
+  span_months: 3
+aspects: [maintenance, deposit_return, honesty, house_rules, neighbourhood]
+followups: [180d, move_out]
+item_noun: building
+recency_days: 120
+decay_half_life_days: 365
+publish:
+  level: building
+  delay: until_move_out_or_90d
+  date_granularity: week
+moderation:
+  personal_allegations: hold_for_review
+  fake_product_claims: allow
+item_must_be_in_proof: false
+rules:
+  - Published at building level after move-out or a delay, so tenants are safe from retaliation.
+  - Landlords can reply in public.
+  - Accusations about a person are held for human review.
+prompt:
+  en: How is renting here? Maintenance, deposit, honesty, house rules, neighbourhood. Talk about the experience, not the person.
+  hi: यहाँ किराये पर रहना कैसा है? रखरखाव, डिपॉज़िट, ईमानदारी, नियम, आस-पड़ोस। अनुभव के बारे में बताइए।
+keywords: [landlord, rent, flat, apartment, pg, deposit, tenant, lease, building, rental]

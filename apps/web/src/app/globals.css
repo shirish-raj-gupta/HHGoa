@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+@import '@receipts/react/theme.css';
+
+/* Classes used inside the shared package. */
+@source '../../../../packages/react/src';
+
+/* First visit to the home page: navy from the first paint until the splash takes over (lib/visitor.ts). If the page
+   never hydrates, the cover still lifts after four seconds. */
+html[data-splash] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--curtain);
+  animation: splash-cover 0.3s ease 4s forwards;
+}
+
+@keyframes splash-cover {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

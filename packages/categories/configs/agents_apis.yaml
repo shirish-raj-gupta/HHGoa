@@ -1,0 +1,21 @@
+category: agents_apis
+name: Agents and APIs
+rails: [onchain_payment]
+aspects: [accuracy, latency, uptime, price]
+followups: [30d]
+item_noun: api
+recency_days: 30
+decay_half_life_days: 60
+publish:
+  level: item
+  delay: none
+  date_granularity: day
+item_must_be_in_proof: false
+erc8004: true
+rules:
+  - The payment transaction is the receipt.
+  - Also written as ERC-8004 feedback.
+prompt:
+  en: Which API or agent did you pay, and did it deliver? Accuracy, latency, uptime, price.
+  hi: आपने किस API या एजेंट को भुगतान किया और क्या उसने काम किया? सटीकता, गति, अपटाइम, कीमत।
+keywords: [api, agent, x402, mcp, endpoint, llm, model, tool, inference]

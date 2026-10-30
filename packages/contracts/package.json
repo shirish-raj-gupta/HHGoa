@@ -1,0 +1,31 @@
+{
+  "name": "@receipts/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Foundry project: EAS resolver, personhood registry, payout distributor, reputation token, testnet governance. TS exports ABIs, a viem deployer and deployments.",
+  "main": "./ts/index.ts",
+  "types": "./ts/index.ts",
+  "exports": {
+    ".": "./ts/index.ts",
+    "./deploy": "./ts/deploy.ts",
+    "./local": "./ts/local.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run",
+    "deploy": "tsx scripts/deploy.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ethereum-attestation-service/eas-contracts": "^1.9.0",
+    "@openzeppelin/contracts": "^5.6.1",
+    "@receipts/core": "workspace:*",
+    "viem": "^2.57.11"
+  },
+  "devDependencies": {
+    "@openzeppelin/merkle-tree": "^1.0.8",
+    "solc": "0.8.29",
+    "tevm": "1.0.0-rc.151"
+  }
+}

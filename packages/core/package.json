@@ -1,0 +1,21 @@
+{
+  "name": "@receipts/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared zod schemas, scoring, nullifiers, EAS encoders, CIDs and the citation validator.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "multiformats": "^14.0.5",
+    "viem": "^2.57.11",
+    "zod": "^4.6.7"
+  }
+}

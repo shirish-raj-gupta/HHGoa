@@ -1,0 +1,17 @@
+category: subscriptions
+name: Subscriptions and apps
+rails: [order_email, payment_proof]
+aspects: [reliability, support, value, ease_of_cancelling]
+followups: [30d, renewal]
+item_noun: plan
+recency_days: 60
+decay_half_life_days: 180
+publish:
+  level: item
+  delay: none
+  date_granularity: day
+item_must_be_in_proof: true
+prompt:
+  en: Which plan do you pay for and is it worth it? Reliability, support, value, cancelling.
+  hi: आप कौन सा प्लान लेते हैं और क्या वह पैसे के लायक है? भरोसा, सपोर्ट, कीमत, कैंसल करना।
+keywords: [subscription, netflix, spotify, prime, hotstar, youtube premium, app, saas, plan, membership, cancel]

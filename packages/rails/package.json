@@ -1,0 +1,28 @@
+{
+  "name": "@receipts/rails",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One module per proof rail; each verifies its proof and returns a PurchaseClaim.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@receipts/brands": "workspace:*",
+    "@receipts/core": "workspace:*",
+    "@reclaimprotocol/js-sdk": "^5.8.3",
+    "@zk-email/sdk": "^2.0.11",
+    "mailauth": "^8.0.4",
+    "postal-mime": "4.0.4",
+    "viem": "^2.57.11",
+    "zod": "^4.6.7"
+  }
+}

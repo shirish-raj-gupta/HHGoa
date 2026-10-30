@@ -1,0 +1,21 @@
+category: food
+name: Food (delivery and dine-in)
+rails: [order_page, order_email, payment_proof, merchant_receipt, network_order]
+aspects: [taste, portion, value, delivery_time, packaging, hygiene]
+followups: [1d]
+item_noun: dish
+recency_days: 30
+decay_half_life_days: 90
+min_receipts_to_rank: 3
+publish:
+  level: item
+  delay: random_0_24h
+  date_granularity: day
+item_must_be_in_proof: true
+rules:
+  - The dish must be in the proven order.
+  - Small restaurants publish after a random 0-24 hour delay so timing cannot single out the reviewer.
+prompt:
+  en: What did you order and how was it? Taste, portion, price, delivery.
+  hi: आपने क्या ऑर्डर किया और कैसा लगा? स्वाद, मात्रा, दाम, डिलीवरी।
+keywords: [biryani, dosa, idli, pizza, burger, thali, restaurant, food, cafe, café, dinner, lunch, breakfast, dish, curry, fish, seafood, prawn, shack, chicken, paneer, coffee, vindaloo, xacuti, bebinca, momos, noodles, rolls]

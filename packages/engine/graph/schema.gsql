@@ -1,0 +1,20 @@
+# Receipts collusion graph. Install once per TigerGraph instance (Savanna or Community Edition):
+#   gsql -g Receipts schema.gsql   (or paste into GraphStudio / the Savanna GSQL editor)
+# Then install queries.gsql. The API syncs vertices and edges over REST++ every few minutes (TIGERGRAPH_* env).
+
+CREATE VERTEX Reviewer (PRIMARY_ID id STRING, reliability FLOAT, level INT, simulated BOOL) WITH primary_id_as_attribute="true"
+CREATE VERTEX Review (PRIMARY_ID id STRING, rating INT, created_at DATETIME, rail STRING, tier STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Item (PRIMARY_ID id STRING, name STRING, category STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Merchant (PRIMARY_ID id STRING, name STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Wallet (PRIMARY_ID address STRING) WITH primary_id_as_attribute="true"
+CREATE VERTEX Area (PRIMARY_ID id STRING, name STRING) WITH primary_id_as_attribute="true"
+
+CREATE DIRECTED EDGE WROTE (FROM Reviewer, TO Review) WITH REVERSE_EDGE="WRITTEN_BY"
+CREATE DIRECTED EDGE ABOUT (FROM Review, TO Item) WITH REVERSE_EDGE="REVIEWED_IN"
+CREATE DIRECTED EDGE SOLD_BY (FROM Item, TO Merchant) WITH REVERSE_EDGE="SELLS"
+CREATE DIRECTED EDGE PAID_TO (FROM Reviewer, TO Wallet) WITH REVERSE_EDGE="PAYS"
+CREATE DIRECTED EDGE FUNDED_BY (FROM Wallet, TO Wallet, tx STRING) WITH REVERSE_EDGE="FUNDED"
+CREATE UNDIRECTED EDGE CO_REVIEWED (FROM Reviewer, TO Reviewer, shared INT, jaccard FLOAT)
+CREATE DIRECTED EDGE IN_AREA (FROM Merchant, TO Area) WITH REVERSE_EDGE="HAS_MERCHANT"
+
+CREATE GRAPH Receipts (*)

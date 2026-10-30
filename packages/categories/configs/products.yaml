@@ -1,0 +1,23 @@
+category: products
+name: Products (electronics, fashion, beauty, home)
+rails: [order_page, order_email, shop_through]
+aspects: [quality, as_described, size_fit, durability, returns]
+followups: [30d, 90d]
+item_noun: product
+recency_days: 60
+decay_half_life_days: 365
+publish:
+  level: item
+  delay: none
+  date_granularity: day
+moderation:
+  personal_allegations: allow
+  fake_product_claims: hold_for_review
+item_must_be_in_proof: true
+rules:
+  - Match the exact variant.
+  - Fake-product claims go to moderation.
+prompt:
+  en: Which product did you buy and how is it holding up? Quality, as described, fit, returns.
+  hi: आपने कौन सा प्रोडक्ट खरीदा और वह कैसा है? क्वालिटी, जैसा बताया था वैसा, साइज़, रिटर्न।
+keywords: [power bank, powerbank, phone, mobile, laptop, headphones, earbuds, charger, cable, shoes, sneakers, shirt, kurta, dress, jeans, cream, serum, sunscreen, mixer, kettle, product, watch, bag, backpack]
