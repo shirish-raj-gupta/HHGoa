@@ -25,6 +25,7 @@
     "contracts:deploy": "pnpm --filter @receipts/contracts run deploy",
     "graph:setup": "pnpm --filter @receipts/engine graph:setup",
     "graph:wake": "pnpm --filter @receipts/engine graph:wake",
+    "dodo:setup": "node scripts/dodo-setup.mjs",
     "rehearse": "node scripts/rehearse.mjs",
     "agent": "pnpm --filter @receipts/mcp agent",
     "typecheck": "pnpm -r --parallel typecheck",

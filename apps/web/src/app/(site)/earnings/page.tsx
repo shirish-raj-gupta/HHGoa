@@ -176,8 +176,7 @@ function EarningsInner() {
         </form>
         {!data.inr.on ? (
           <Notice>
-            Rupee payouts are not switched on here yet: Razorpay has to enable RazorpayX for this account first. Your earnings are safe; claim them in USDC
-            above meanwhile.
+            Rupee payouts are not enabled on this server. Your earnings are safe; claim them in USDC above meanwhile.
           </Notice>
         ) : data.payoutMethod?.kind === 'upi' ? (
           <div className="flex flex-wrap items-center gap-3">
@@ -193,7 +192,7 @@ function EarningsInner() {
             >
               Withdraw ₹{(data.inr.paise / 100).toFixed(2)} to UPI
             </Button>
-            {data.inr.paise < data.inr.minimumPaise ? <span className="text-sm text-muted">Razorpay sends payouts of ₹1 or more.</span> : null}
+            {data.inr.paise < data.inr.minimumPaise ? <span className="text-sm text-muted">UPI withdrawals start at ₹{(data.inr.minimumPaise / 100).toFixed(0)}.</span> : null}
           </div>
         ) : null}
       </Card>

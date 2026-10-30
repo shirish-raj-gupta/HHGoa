@@ -65,7 +65,20 @@ Then copy these from your local `.env`: `ADMIN_TOKEN`, `CHAIN`, `BASE_SEPOLIA_RP
 `OPERATOR_PRIVATE_KEY`, `TREASURY_ADDRESS`, `AGENT_PRIVATE_KEY`, `AGENT_NETWORK`, `AGENT_LLM`, `LLM_PROVIDER`,
 `OPENAI_COMPAT_BASE_URL`, `OPENAI_COMPAT_API_KEY`, `OPENAI_COMPAT_MODEL`, `GEMINI_API_KEY`, `GEMINI_MODEL`,
 `SARVAM_API_KEY`, `SMALLEST_API_KEY`, `RECLAIM_APP_ID`, `RECLAIM_APP_SECRET`, `GOOGLE_MAPS_API_KEY`, `PINATA_JWT`,
-`PRIVY_APP_ID`, `RAZORPAYX_KEY_ID`, `RAZORPAYX_KEY_SECRET`, `TIGERGRAPH_API_KEY`, `TIGERGRAPH_HOST`, `TIGERGRAPH_SECRET`.
+`PRIVY_APP_ID`, `TIGERGRAPH_API_KEY`, `TIGERGRAPH_HOST`, `TIGERGRAPH_SECRET`.
+
+For Dodo billing, also include `DODO_API_KEY`, `DODO_ENV`, `DODO_PRODUCT_CREDITS`, `DODO_PRODUCT_MERCHANT_PRO` and
+`DODO_WEBHOOK_SECRET`. Use `DODO_ENV=test_mode` for the sandbox even when Vercel calls the deployment Production.
+These are server variables; none belongs in `NEXT_PUBLIC_*`. `pnpm dodo:setup` saves the product IDs in `.env` and
+the existing `.env.vercel`, and the webhook secret when given a public endpoint URL. Import the updated file into
+Vercel and redeploy: editing a local `.env.vercel` does not update the hosted project.
+For the current test setup, the ignored `.env.dodo.vercel` contains only these five Dodo settings and can be imported
+without changing unrelated project variables. The configured products are $1 USD per API-credit unit and $10 USD/month
+for business Pro. Keep this deployment in test mode.
+
+Razorpay variables are optional and should stay unset for the Dodo-only configuration. Its remaining adapter serves
+UPI reviewer withdrawals and the ₹1 business ownership check, not subscriptions or API credits. Dodo's settlement
+payouts go to the business's bank account; they do not replace reviewer UPI transfers. USDC claims remain available.
 
 Leave these out: `PORT`, the `PUBLIC_*_URL` lines (they point at localhost), `RECEIPTS_API_URL` (the binding sets it),
 `DEPLOYER_PRIVATE_KEY` (only the contract scripts need it), and `SOCKET_CLI_*` (local tooling).
@@ -78,7 +91,14 @@ every screen.
 ## 4. After the first deploy
 
 - Privy: add the domain to the app's allowed origins (one origin now covers the reviewer site and the business app).
-- Razorpay: webhook to `https://<domain>/v1/razorpay/webhook`. Dodo: `https://<domain>/v1/dodo/webhook`.
+- Dodo: run `pnpm dodo:setup --webhook-url=https://<domain>/v1/dodo/webhook`, import the updated `.env.vercel` and
+  redeploy. The command configures the billing event subscriptions and saves the signing secret without printing it.
+  Add `--webhook-id=ep_...` alongside `--webhook-url` to select an existing endpoint and verify its URL. The current
+  test endpoint is `ep_3LPT02Zdd4BbEtAlbRRbKEp30kk` at
+  `https://hackerhousegoa-receipts.vercel.app/v1/dodo/webhook`.
+  The endpoint must be publicly reachable without Vercel deployment protection. A return to `/business/billing` or
+  `/developers?checkout=done` does not grant a plan or credits; only a verified webhook does.
+- If you deliberately enable the optional Razorpay adapter, its webhook is `https://<domain>/v1/razorpay/webhook`.
 - Google Maps: the key is used only by the API; restrict it to the Places, Geocoding and Maps Static APIs.
 - Open `https://<domain>/health` first and wait for it: the first request migrates and seeds the empty database (a few
   seconds in the database's region). Then open `/`, `/business`, `/stage` and `/admin`.

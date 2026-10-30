@@ -121,7 +121,7 @@ export function parseEnv(source: Record<string, string | undefined> = process.en
     AFFILIATE_TEMPLATE_INRDEALS: z.string().default('https://inr.deals/track?id={pub}&src=api&subid={click}&url={url}'),
     AFFILIATE_PUBLISHER_ID: opt,
 
-    // Payouts
+    // Optional legacy UPI disbursements and ownership checks; Dodo checkout does not replace these rails.
     RAZORPAYX_KEY_ID: opt,
     RAZORPAYX_KEY_SECRET: opt,
     RAZORPAYX_ACCOUNT_NUMBER: opt,
@@ -129,7 +129,7 @@ export function parseEnv(source: Record<string, string | undefined> = process.en
     RAZORPAY_CLAIM_VPA: opt,
     FX_INR_PER_USD: z.coerce.number().default(88),
 
-    // Card billing
+    // Dodo billing for API credits and business subscriptions (server-side credentials only).
     DODO_API_KEY: opt,
     DODO_WEBHOOK_SECRET: opt,
     DODO_ENV: z.enum(['test_mode', 'live_mode']).default('test_mode'),

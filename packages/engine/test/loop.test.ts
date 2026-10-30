@@ -59,6 +59,9 @@ describe('the core loop', () => {
 
   it('a merchant claims its listing (MerchantV1 attested on-chain)', async () => {
     const claim = await merchants.startClaim(e, merchantKey.address, { merchantId, method: 'upi' });
+    expect(claim.payUrl).toBeNull();
+    expect(claim.instructions).toContain('no payment is required');
+    await expect(merchants.checkClaim(e, merchantKey.address, claim.claimId)).resolves.toMatchObject({ status: 'pending' });
     const done = await merchants.approveClaim(e, claim.claimId, 'test');
     expect(done.status).toBe('verified');
     expect(done.easUid).toMatch(/^0x/);

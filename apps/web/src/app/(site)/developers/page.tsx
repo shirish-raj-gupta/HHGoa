@@ -76,7 +76,8 @@ console.log(await res.json());`}</Code>
 }
 
 function ApiKeys() {
-  const { client } = useSession();
+  const { client, config } = useSession();
+  const billingOn = config?.billing?.credits === true;
   const [email, setEmail] = useState('');
   const [key, setKey] = useState<{ id: string; apiKey: string } | null>(null);
   const [dollars, setDollars] = useState('5');
@@ -97,7 +98,7 @@ function ApiKeys() {
   };
 
   const buy = async () => {
-    if (!key) return;
+    if (!key || !billingOn) return;
     setBusy('buy');
     setError(null);
     try {
@@ -115,6 +116,8 @@ function ApiKeys() {
     <Card className="space-y-3">
       <h2 className="font-semibold">Pay by card instead</h2>
       <p className="text-sm text-muted">Prepaid credits with an API key, for teams without a wallet. Send it as a Bearer token to the same endpoints.</p>
+      {config && !billingOn ? <Notice>Billing is not available yet.</Notice> : null}
+      {config?.billing?.testMode ? <Notice tone="warn">Dodo test mode: payments are simulated; no real money moves.</Notice> : null}
       {key ? (
         <div className="space-y-3">
           <Notice tone="warn">
@@ -127,7 +130,7 @@ function ApiKeys() {
             <Field label="Credits (USD)">
               <input className={inputCls} inputMode="decimal" value={dollars} onChange={(e) => setDollars(e.target.value)} />
             </Field>
-            <Button busy={busy === 'buy'} onClick={() => void buy()}>
+            <Button busy={busy === 'buy'} disabled={!billingOn} onClick={() => void buy()}>
               Buy credits
             </Button>
           </div>

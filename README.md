@@ -28,6 +28,7 @@ pnpm dev          # API :8787, reviewer web app :3000 (business app at :3000/bus
 | `pnpm contracts:build` / `contracts:test` / `contracts:deploy` | solc-js build, tests on an in-memory EVM, deploy to Base Sepolia (`-- --skip-governance` for the core contracts only) |
 | `pnpm graph:setup` | Set up a TigerGraph Savanna workspace from `TIGERGRAPH_API_KEY`: database user, schema, queries, secret |
 | `pnpm graph:wake` | Resume the Savanna workspace (it pauses after an idle hour, and stays paused while its auto start is off); run it before a demo |
+| `pnpm dodo:setup` | Create/reuse Dodo test products for API credits and business Pro; add `--webhook-url=https://<domain>/v1/dodo/webhook` to configure signed payment fulfillment |
 | `pnpm rehearse` | Before the demo: the API's keys, the wallets' gas and the agent's USDC, TigerGraph, and the stage's three answers warmed; lists what to fix. `REHEARSE_API_URL=https://<domain>` checks a deployment. Reads only |
 | `pnpm --filter @receipts/worker once` | Run every job once (follow-ups, trust, graph sync, epoch, cashback, audio cleanup) |
 | `pnpm safe install` / `pnpm safe add <pkg>` | Install through Socket Firewall, which blocks known-malicious packages (no account needed) |
@@ -38,6 +39,11 @@ under `cross-env NODE_ENV=production`.
 
 Copy `.env.example` to `.env` to turn integrations on. The API logs which ones are live at startup; see
 [docs/prep-checklist.md](docs/prep-checklist.md) for the accounts and keys.
+
+Card billing uses Dodo Payments for API credits and business Pro. Set `DODO_API_KEY` and `DODO_ENV=test_mode`, then
+run `pnpm dodo:setup`; see [the billing checklist](docs/prep-checklist.md#5-money-and-billing) for webhook setup.
+Razorpay is optional for UPI withdrawals and the ₹1 business ownership check. Without it, reviewers claim USDC and
+businesses use domain verification or manual review. A successful Dodo checkout never proves business ownership.
 
 ## How it fits together
 
@@ -102,8 +108,14 @@ Swiggy, Zomato and Amazon providers; Razorpay test mode creates the ₹1 merchan
 tokens from the API's secret; OpenAI's gpt-5-nano (an AI Grants India key) writes review cards and cited answers and
 runs both demo agents, as Gemini did before it; Smallest AI reads published reviews and answers aloud.
 
+Dodo test setup (31 October 2026): the $1 USD API-credit product and $10/month business Pro product are created,
+and hosted checkout sessions were created successfully for both. The signed webhook endpoint is configured for
+`https://hackerhousegoa-receipts.vercel.app/v1/dodo/webhook`; its signing secret and product IDs are saved locally.
+The hosted project still needs the five settings in the ignored `.env.dodo.vercel` imported into Vercel and a
+redeploy. A completed sandbox payment and webhook fulfillment have not yet been verified.
+
 Not exercised yet: a real Reclaim proof end to end (the callback needs the API on a public URL), ZK Email
 blueprints, Self and Anon Aadhaar in production mode, Claude, x402 settlement (the agent wallet needs test USDC),
-RazorpayX payouts, Dodo, the TigerGraph sync (waits on the schema grant), push notifications. Each has a labelled
+RazorpayX payouts, Dodo payment completion and webhook fulfillment, the TigerGraph sync (waits on the schema grant), push notifications. Each has a labelled
 fallback so the product still runs. Self now calls
 its open-source SDK legacy (no shutdown date given); Anon Aadhaar is the alternative.

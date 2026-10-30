@@ -179,13 +179,15 @@ function DashboardInner({ merchantId }: { merchantId: string }) {
 }
 
 function BadgeAndPlan({ merchantId }: { merchantId: string }) {
-  const { client } = useSession();
+  const { client, config } = useSession();
+  const billingOn = config?.billing?.merchantPro === true;
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const embed = `<iframe src="${WEB_URL}/badge/${merchantId}" width="260" height="72" style="border:0" title="Receipts badge"></iframe>`;
 
   const upgrade = async () => {
+    if (!billingOn) return;
     setBusy(true);
     setError(null);
     try {
@@ -212,9 +214,11 @@ function BadgeAndPlan({ merchantId }: { merchantId: string }) {
       <Card className="space-y-3">
         <div className="text-sm font-semibold">Receipts Pro</div>
         <p className="text-sm text-muted">A monthly plan billed through Dodo Payments. Paying never changes your score, your ranking or any review.</p>
+        {config && !billingOn ? <Notice>Billing is not available yet.</Notice> : null}
+        {config?.billing?.testMode ? <Notice tone="warn">Dodo test mode: payments are simulated; no real money moves.</Notice> : null}
         <div className="flex flex-col gap-2 sm:flex-row">
           <input className={inputCls} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="billing@yourbusiness.in" aria-label="Billing email" />
-          <Button busy={busy} disabled={!email.includes('@')} onClick={() => void upgrade()}>
+          <Button busy={busy} disabled={!billingOn || !email.includes('@')} onClick={() => void upgrade()}>
             Upgrade
           </Button>
         </div>

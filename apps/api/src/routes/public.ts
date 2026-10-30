@@ -54,6 +54,12 @@ export function publicRoutes(e: Engine, x402: X402 | null) {
       places: { google: !!e.env.GOOGLE_MAPS_API_KEY },
       voice: { sarvam: !!e.env.SARVAM_API_KEY, model: e.env.SARVAM_MODEL },
       speech: { on: speech.speechEnabled(e) },
+      billing: {
+        provider: 'dodo',
+        testMode: e.env.DODO_ENV === 'test_mode',
+        credits: !!(e.env.DODO_API_KEY && e.env.DODO_PRODUCT_CREDITS && e.env.DODO_WEBHOOK_SECRET),
+        merchantPro: !!(e.env.DODO_API_KEY && e.env.DODO_PRODUCT_MERCHANT_PRO && e.env.DODO_WEBHOOK_SECRET),
+      },
       llm: { provider: e.llm.provider, model: e.llm.model },
       demoMode: e.env.DEMO_MODE,
       rails: RAIL_INFO,

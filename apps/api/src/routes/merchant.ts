@@ -55,7 +55,7 @@ export function merchantRoutes(e: Engine) {
     const account = mine.find((a) => a.merchant_id === c.req.param('id'));
     if (!account) return c.json({ error: 'not your listing' }, 403);
     const { email, name } = await body<{ email: string; name?: string }>(c);
-    return ok(c, await billing.merchantCheckout(e, { accountId: account.id, email, name }));
+    return ok(c, await billing.merchantCheckout(e, { accountId: account.id, wallet: s.sub, email, name }));
   });
 
   return app;

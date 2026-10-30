@@ -45,7 +45,7 @@ function Listings() {
   if (mine.length === 0) {
     return (
       <EmptyState icon={<Store />} title="No claimed listings on this wallet yet" action={<LinkButton href="/claim">Claim a listing</LinkButton>}>
-        Find your business and prove it is yours with a ₹1 UPI payment, a DNS record or your GSTIN.
+        Find your business and verify ownership with a DNS record, your GSTIN, or a business UPI check with manual review when needed.
       </EmptyState>
     );
   }

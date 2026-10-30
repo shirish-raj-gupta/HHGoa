@@ -257,7 +257,7 @@ export async function setPayoutMethod(e: Engine, wallet: string, input: { kind: 
 
 /** Rupees to a UPI ID through RazorpayX (test mode at the event). */
 /** Rupee payouts need RazorpayX switched on for the account, and its account number in RAZORPAYX_ACCOUNT_NUMBER. */
-const INR_OFF = 'Rupee payouts are not switched on here yet: Razorpay has to enable RazorpayX for this account first. Your earnings are safe; claim them in USDC meanwhile.';
+const INR_OFF = 'Rupee payouts are not enabled on this server. Your earnings are safe; claim them in USDC meanwhile.';
 function inrPayoutsOn(e: Engine): boolean {
   return !!(e.env.RAZORPAYX_KEY_ID && e.env.RAZORPAYX_KEY_SECRET && e.env.RAZORPAYX_ACCOUNT_NUMBER);
 }
@@ -271,7 +271,7 @@ export async function withdrawInr(e: Engine, wallet: string) {
   const rows = await e.db.query<{ id: string; amount: string }>(`SELECT id, amount::text FROM ledger WHERE reviewer_id = $1 AND status = 'accrued'`, [reviewer.id]);
   const usdc = rows.reduce((s, r) => s + toBigInt(r.amount), 0n);
   const paise = Number((usdc * BigInt(Math.round(e.env.FX_INR_PER_USD * 100))) / 1_000_000n);
-  if (paise < 100) throw new UserError(`Razorpay sends payouts of ₹1 or more; you have ₹${(paise / 100).toFixed(2)} so far.`, 409, 'too_small');
+  if (paise < 100) throw new UserError(`UPI withdrawals start at ₹1; you have ₹${(paise / 100).toFixed(2)} so far.`, 409, 'too_small');
   const payoutId = newId('po');
   const res = await createUpiPayout(e.env, {
     amountPaise: paise,

@@ -8,7 +8,7 @@ import { Button, Card, errorText, Eyebrow, Field, inputCls, Notice, PageTitle, S
 import { RequireMerchant } from '@/components/require-merchant';
 
 const METHODS: { id: MerchantClaimMethod; label: string; detail: string }[] = [
-  { id: 'upi', label: '₹1 from your business UPI', detail: 'Pay ₹1 from the UPI ID your customers pay. The payer name must match the listing.' },
+  { id: 'upi', label: 'Business UPI', detail: 'A ₹1 payment check when available, otherwise a manual ownership review. Follow the instructions after starting your claim.' },
   { id: 'domain', label: 'DNS record', detail: 'Add a TXT record on your website’s domain.' },
   { id: 'gst', label: 'GSTIN', detail: 'We match the GST registration’s legal or trade name to the listing.' },
   { id: 'partner_portal', label: 'Swiggy or Zomato partner dashboard', detail: 'Reviewed by a person for now.' },

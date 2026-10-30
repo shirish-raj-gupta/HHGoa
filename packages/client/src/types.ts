@@ -17,6 +17,8 @@ export interface ServerConfig {
   voice: { sarvam: boolean; model: string };
   /** Read-aloud of published reviews and answers (Smallest AI; the key stays on the server). */
   speech?: { on: boolean };
+  /** Dodo checkout availability and test-mode disclosure; credentials stay on the server. */
+  billing?: { provider: 'dodo'; testMode: boolean; credits: boolean; merchantPro: boolean };
   llm: { provider: 'anthropic' | 'gemini' | 'openai-compat' | 'offline'; model: string | null };
   demoMode: boolean;
   rails: Record<Rail, { label: string; proves: string; how: string }>;

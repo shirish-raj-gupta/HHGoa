@@ -5,7 +5,7 @@ import type { ClaimStarted } from '@receipts/client';
 import { Button, Card, errorText, LinkButton, Mono, Notice, PageTitle, useSession } from '@receipts/react';
 import { RequireMerchant } from '@/components/require-merchant';
 
-// Where a claim waits for its evidence. Razorpay sends the merchant back here after the ₹1 payment.
+// Where a claim waits for its ownership evidence or manual review.
 
 export default function ClaimStatus({ params }: { params: Promise<{ claimId: string }> }) {
   const { claimId } = use(params);
@@ -98,7 +98,7 @@ function Status({ claimId }: { claimId: string }) {
         </Button>
         <span className="text-sm text-muted">Status: {status}</span>
       </div>
-      {started?.method === 'partner_portal' || started?.method === 'gst' ? (
+      {started?.method === 'partner_portal' || started?.method === 'gst' || (started?.method === 'upi' && !started.payUrl) ? (
         <p className="text-xs text-muted">If this cannot be checked automatically, a person at Receipts approves it.</p>
       ) : null}
       {error ? <Notice tone="bad">{error}</Notice> : null}

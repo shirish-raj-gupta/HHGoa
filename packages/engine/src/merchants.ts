@@ -111,7 +111,7 @@ export async function startClaim(e: Engine, wallet: string, input: { merchantId:
   const challenge = input.method === 'domain' ? `receipts-verify=${newId('dns', 20).slice(4)}` : `RCPT-${id.slice(3, 9).toUpperCase()}`;
   let payUrl: string | null = null;
   let paymentLinkId: string | null = null;
-  if (input.method === 'upi') {
+  if (input.method === 'upi' && e.env.RAZORPAYX_KEY_ID && e.env.RAZORPAYX_KEY_SECRET) {
     try {
       const link = await createPaymentLink(e.env, {
         amountPaise: 100,
@@ -137,7 +137,9 @@ export async function startClaim(e: Engine, wallet: string, input: { merchantId:
   const instructions: Record<MerchantClaimMethod, string> = {
     upi: payUrl
       ? `Pay ₹1 from the UPI ID your customers pay (${merchant.upi_vpa ?? 'your business UPI'}) using this link. The payer name must match the listing.${isTestMode(e.env) ? ' Razorpay is in test mode here, so no money moves: pay with the Razorpay test card 4100 2800 0000 1007 (any future expiry, any CVV) and any 4 to 10 digit OTP.' : ''}`
-      : `Pay ₹1 to ${e.env.RAZORPAY_CLAIM_VPA ?? 'the Receipts UPI ID'} with the note ${challenge} from the UPI ID your customers pay.`,
+      : e.env.RAZORPAY_CLAIM_VPA
+        ? `Pay ₹1 to ${e.env.RAZORPAY_CLAIM_VPA} with the note ${challenge} from the UPI ID your customers pay. A person at Receipts will review the payment and your ownership evidence.`
+        : 'Automatic UPI ownership checks are not available here. Your claim is pending manual review by Receipts; no payment is required. A subscription payment does not verify business ownership.',
     domain: `Add a DNS TXT record on ${input.domain ?? 'your domain'} with the value ${challenge}, then press verify.`,
     gst: `We will match GSTIN ${input.gstin ?? ''} to "${merchant.name}".`,
     partner_portal: 'Prove your Swiggy or Zomato partner dashboard with Reclaim from the dashboard on your phone.',
