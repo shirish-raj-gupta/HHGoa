@@ -49,7 +49,7 @@ export async function clickOut(e: Engine, itemId: string, ctx: { wallet?: string
     [clickId, ctx.wallet?.toLowerCase() ?? null, ctx.answerId ?? null, item.id, item.merchant_id, item.brand_id, network, rail?.campaign_id ?? null, target],
   );
   await e.events.emit('shop.click', { clickId, item: item.canonical_name, network, test: network === 'test' });
-  return { clickId, url: target, network, test: network === 'test', disclosure: COMMISSION_DISCLOSURE };
+  return { clickId, url: target, network, test: network === 'test', item: item.canonical_name, merchant: item.merchant, disclosure: COMMISSION_DISCLOSURE };
 }
 
 export async function handlePostback(

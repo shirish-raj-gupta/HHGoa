@@ -15,7 +15,7 @@ const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['nor
 export const metadata: Metadata = {
   title: { default: 'Receipts for business', template: '%s · Receipts for business' },
   description: 'Claim your listing, reply in public, see what verified buyers and AI agents say about you, and issue signed receipts.',
-  icons: { icon: '/icon.svg', apple: '/apple-icon.png' },
+  icons: { icon: '/business/icon.svg', apple: '/business/apple-icon.png' },
 };
 
 export const viewport: Viewport = {

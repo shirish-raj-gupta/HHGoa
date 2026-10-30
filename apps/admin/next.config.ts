@@ -10,16 +10,27 @@ for (const f of ['.env.local', '.env']) {
   if (existsSync(p)) process.loadEnvFile(p);
 }
 
+// On Vercel every app shares the deployment's origin (vercel.json): the API at /v1, the reviewer site at /, the business
+// app at /business, the stage at /stage and this console at /admin. Locally each runs on its own port.
+const vercelHost = process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL ? process.env.VERCEL_PROJECT_PRODUCTION_URL : process.env.VERCEL_URL;
+const origin = process.env.VERCEL && vercelHost ? `https://${vercelHost}` : null;
+const url = (name: string, fallback: string) => process.env[`NEXT_PUBLIC_${name}`] ?? process.env[`PUBLIC_${name}`] ?? fallback;
+
 const nextConfig: NextConfig = {
   turbopack: { root },
+  // Every page lives under /admin, the path vercel.json routes here; opened directly, the bare root goes there.
+  basePath: '/admin',
+  async redirects() {
+    return [{ source: '/', destination: '/admin', basePath: false, permanent: false }];
+  },
   // The browser tests run a second dev server beside `pnpm dev` (e2e/playwright.config.ts): it needs its own build
   // folder, and its own tsconfig for Next to write that folder's type paths into.
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR, typescript: { tsconfigPath: 'tsconfig.e2e.json' } } : {}),
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? process.env.PUBLIC_API_URL ?? 'http://localhost:8787',
-    NEXT_PUBLIC_WEB_URL: process.env.NEXT_PUBLIC_WEB_URL ?? process.env.PUBLIC_WEB_URL ?? 'http://localhost:3000',
-    NEXT_PUBLIC_MERCHANT_URL: process.env.NEXT_PUBLIC_MERCHANT_URL ?? process.env.PUBLIC_MERCHANT_URL ?? 'http://localhost:3000/business',
-    NEXT_PUBLIC_DEMO_URL: process.env.NEXT_PUBLIC_DEMO_URL ?? process.env.PUBLIC_DEMO_URL ?? 'http://localhost:3002',
+    NEXT_PUBLIC_API_URL: url('API_URL', origin ?? 'http://localhost:8787'),
+    NEXT_PUBLIC_WEB_URL: url('WEB_URL', origin ?? 'http://localhost:3000'),
+    NEXT_PUBLIC_MERCHANT_URL: url('MERCHANT_URL', `${origin ?? 'http://localhost:3000'}/business`),
+    NEXT_PUBLIC_DEMO_URL: url('DEMO_URL', `${origin ?? 'http://localhost:3002'}/stage`),
   },
 };
 

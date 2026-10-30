@@ -16,15 +16,19 @@ const opt = z
 
 export function parseEnv(source: Record<string, string | undefined> = process.env) {
   const production = source.NODE_ENV === 'production';
+  // On Vercel every app shares the deployment's origin (vercel.json): the API at /v1, /mcp, /go and /health, the
+  // reviewer site at /, the business app at /business, the stage at /stage and the admin console at /admin.
+  const host = source.VERCEL_ENV === 'production' && source.VERCEL_PROJECT_PRODUCTION_URL ? source.VERCEL_PROJECT_PRODUCTION_URL : source.VERCEL_URL;
+  const vercel = source.VERCEL && host ? `https://${host}` : null;
   const schema = z.object({
     NODE_ENV: z.string().default('development'),
     PORT: z.coerce.number().default(8787),
 
-    PUBLIC_API_URL: z.string().default('http://localhost:8787'),
-    PUBLIC_WEB_URL: z.string().default('http://localhost:3000'),
-    PUBLIC_MERCHANT_URL: z.string().default('http://localhost:3000/business'),
-    PUBLIC_DEMO_URL: z.string().default('http://localhost:3002'),
-    PUBLIC_ADMIN_URL: z.string().default('http://localhost:3003'),
+    PUBLIC_API_URL: z.string().default(vercel ?? 'http://localhost:8787'),
+    PUBLIC_WEB_URL: z.string().default(vercel ?? 'http://localhost:3000'),
+    PUBLIC_MERCHANT_URL: z.string().default(`${vercel ?? 'http://localhost:3000'}/business`),
+    PUBLIC_DEMO_URL: z.string().default(`${vercel ?? 'http://localhost:3002'}/stage`),
+    PUBLIC_ADMIN_URL: z.string().default(`${vercel ?? 'http://localhost:3003'}/admin`),
     CORS_ORIGINS: opt,
 
     DATABASE_URL: opt,
@@ -33,6 +37,8 @@ export function parseEnv(source: Record<string, string | undefined> = process.en
     /** 32 bytes (hex or base64) for AES-GCM over proof blobs and audio. Derived from SESSION_SECRET when unset. */
     DATA_ENCRYPTION_KEY: opt,
     ADMIN_TOKEN: opt,
+    /** Vercel Cron signs its calls to /v1/cron/:minutes with this (Authorization: Bearer). */
+    CRON_SECRET: opt,
 
     /** Show labelled simulated history and allow demo controls. */
     DEMO_MODE: bool(!production),
@@ -77,6 +83,8 @@ export function parseEnv(source: Record<string, string | undefined> = process.en
 
     // Voice and LLM
     SARVAM_API_KEY: opt,
+    // read-aloud of published reviews and answers (Smallest AI Lightning text to speech)
+    SMALLEST_API_KEY: opt,
     /** saaras:v3 (the plan's pick, with codemix mode) or saaras:v4 (newer default; supports keyterms). */
     SARVAM_MODEL: z.string().default('saaras:v3'),
     SARVAM_MODE: z.string().default('codemix'),

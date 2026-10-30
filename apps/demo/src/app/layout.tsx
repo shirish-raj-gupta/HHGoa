@@ -15,7 +15,7 @@ const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['nor
 export const metadata: Metadata = {
   title: 'Receipts · stage',
   description: 'The poisoned web against verified receipts, the attack, and the week in numbers.',
-  icons: { icon: '/icon.svg', apple: '/apple-icon.png' },
+  icons: { icon: '/stage/icon.svg', apple: '/stage/apple-icon.png' },
   robots: { index: false },
 };
 

@@ -28,6 +28,15 @@ export class OpenAiCompatLlm implements Llm {
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
+  // OpenAI itself takes max_completion_tokens (its reasoning models, gpt-5 and the o-series, refuse max_tokens) and,
+  // for those models, a reasoning effort: low keeps a review card or an answer quick. Other OpenAI-compatible servers
+  // still expect max_tokens.
+  private limit(tokens: number): Record<string, unknown> {
+    const openai = /\/\/api\.openai\.com\b/.test(this.baseUrl);
+    const reasoning = openai && /^(gpt-5|o\d)/.test(this.model);
+    return { [openai ? 'max_completion_tokens' : 'max_tokens']: tokens, ...(reasoning ? { reasoning_effort: 'low' } : {}) };
+  }
+
   private async chat(body: Record<string, unknown>): Promise<{ status: number; data: ChatResponse }> {
     const res = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -46,14 +55,14 @@ export class OpenAiCompatLlm implements Llm {
     ];
     let r = await this.chat({
       messages,
-      max_tokens: req.maxTokens ?? 8192,
+      ...this.limit(req.maxTokens ?? 8192),
       response_format: { type: 'json_schema', json_schema: { name: 'result', schema: req.schema } },
     });
     if (r.status === 400 || r.status === 422) {
       // No schema support: ask for plain JSON mode and put the schema in the instructions.
       r = await this.chat({
         messages: [{ role: 'system', content: `${req.system}\n\nReply with one JSON object that matches this JSON schema:\n${JSON.stringify(req.schema)}` }, messages[1]],
-        max_tokens: req.maxTokens ?? 8192,
+        ...this.limit(req.maxTokens ?? 8192),
         response_format: { type: 'json_object' },
       });
     }
@@ -72,7 +81,7 @@ export class OpenAiCompatLlm implements Llm {
       { role: 'user', content: req.prompt },
     ];
     for (let i = 0; i < (req.maxIterations ?? 12); i++) {
-      const r = await this.chat({ messages, tools, max_tokens: 8192 });
+      const r = await this.chat({ messages, tools, ...this.limit(8192) });
       if (r.status >= 400) throw new Error(`model endpoint returned ${r.status}: ${r.data.error?.message ?? 'no detail'}`);
       const msg = r.data.choices?.[0]?.message;
       if (!msg) throw new Error('model endpoint returned no message');

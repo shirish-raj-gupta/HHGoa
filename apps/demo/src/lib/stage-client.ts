@@ -1,5 +1,7 @@
 'use client';
 
+import { BASE_PATH } from './env';
+
 // Browser side of the stage routes: the operator token (when the stage has one) and the SSE reader for /api/run.
 
 const TOKEN_KEY = 'receipts.demoToken';
@@ -28,7 +30,7 @@ function headers(): Record<string, string> {
 }
 
 export async function operator<T>(path: string): Promise<T> {
-  const res = await fetch(path, { method: 'POST', headers: headers(), body: '{}' });
+  const res = await fetch(`${BASE_PATH}${path}`, { method: 'POST', headers: headers(), body: '{}' });
   const data = (await res.json().catch(() => ({}))) as T & { error?: string };
   if (res.status === 401) throw new StageAuthError(data.error ?? 'operator token needed');
   if (!res.ok) throw new Error(data.error ?? `${path} failed (${res.status})`);
@@ -37,7 +39,7 @@ export async function operator<T>(path: string): Promise<T> {
 
 /** POST /api/run and hand each server-sent event to onEvent as it arrives. */
 export async function runStage(question: string, onEvent: (event: string, data: unknown) => void, signal?: AbortSignal) {
-  const res = await fetch('/api/run', { method: 'POST', headers: headers(), body: JSON.stringify({ question }), signal });
+  const res = await fetch(`${BASE_PATH}/api/run`, { method: 'POST', headers: headers(), body: JSON.stringify({ question }), signal });
   if (res.status === 401) throw new StageAuthError('operator token needed');
   if (!res.ok || !res.body) throw new Error(`run failed (${res.status})`);
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();

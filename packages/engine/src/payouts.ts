@@ -1,5 +1,5 @@
 import { StandardMerkleTree } from '@openzeppelin/merkle-tree';
-import { SPLITS, baseToUsdc, bps, dailyCapBaseUnits, newId, splitByWeight } from '@receipts/core';
+import { PAID_REVIEW_DISCLOSURE, SPLITS, baseToUsdc, bps, dailyCapBaseUnits, newId, splitByWeight } from '@receipts/core';
 import { toBigInt } from '@receipts/db';
 import { getAddress, type Address, type Hex } from 'viem';
 import { verifyTypedSignature } from './sig';
@@ -323,7 +323,7 @@ export async function earnings(e: Engine, wallet: string) {
     inr: { on: inrPayoutsOn(e), paise: Number((toBigInt(accruedBase.sum ?? '0') * BigInt(Math.round(e.env.FX_INR_PER_USD * 100))) / 1_000_000n), minimumPaise: 100 },
     recent: recent.map((r: Record<string, unknown>) => ({ ...r, amount: baseToUsdc(toBigInt(r.amount_base as string)) })),
     payouts,
-    disclosure: 'You are paid when AI agents cite your reviews. Pay never depends on your rating.',
+    disclosure: PAID_REVIEW_DISCLOSURE,
   };
 }
 

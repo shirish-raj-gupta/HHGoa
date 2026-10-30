@@ -15,6 +15,8 @@ export interface ServerConfig {
   /** Place search and maps from Google (the key stays on the server). */
   places: { google: boolean };
   voice: { sarvam: boolean; model: string };
+  /** Read-aloud of published reviews and answers (Smallest AI; the key stays on the server). */
+  speech?: { on: boolean };
   llm: { provider: 'anthropic' | 'gemini' | 'openai-compat' | 'offline'; model: string | null };
   demoMode: boolean;
   rails: Record<Rail, { label: string; proves: string; how: string }>;

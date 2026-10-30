@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { CalendarCheck, ChevronDown, MapPin, MessageSquareQuote, ShieldCheck, Store } from 'lucide-react';
-import { AspectTag, Card, Eyebrow, ExternalLink, Mono, SimulatedTag, Stars, Tag, VerifiedStamp } from '@receipts/react';
+import { AspectTag, Card, Eyebrow, ExternalLink, ListenButton, Mono, SimulatedTag, Stars, Tag, VerifiedStamp } from '@receipts/react';
 import { ShareButton } from '@/components/share-button';
 import { VerifyPanel } from '@/components/verify-panel';
 import { followupLabel } from '@/lib/format';
-import { orNull, serverClient } from '@/lib/server-api';
+import { orNull, publicApi, serverClient } from '@/lib/server-api';
 
 type Props = { params: Promise<{ uid: string }> };
 
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ReceiptPage({ params }: Props) {
   const { uid } = await params;
-  const r = await orNull(serverClient.receipt(uid));
+  const [r, config] = await Promise.all([orNull(serverClient.receipt(uid)), orNull(serverClient.config())]);
   if (!r) notFound();
 
   return (
@@ -73,7 +73,7 @@ export default async function ReceiptPage({ params }: Props) {
             {r.merchant.place.fromGoogle && r.merchant.place.lat !== null && r.merchant.place.lng !== null ? (
               // eslint-disable-next-line @next/next/no-img-element -- a map image from our API's Google proxy
               <img
-                src={serverClient.staticMapUrl(r.merchant.place.lat, r.merchant.place.lng)}
+                src={publicApi.staticMapUrl(r.merchant.place.lat, r.merchant.place.lng)}
                 alt={`Map of ${r.merchant.name}`}
                 width={640}
                 height={360}
@@ -85,6 +85,7 @@ export default async function ReceiptPage({ params }: Props) {
           <div className="flex items-center gap-3">
             <Stars value={r.rating} size="text-3xl" />
             <span className="font-display text-2xl font-bold tabular-nums">{r.rating}.0</span>
+            {!r.hidden && config?.speech?.on ? <ListenButton src={publicApi.speechUrl('reviews', r.uid ?? r.id)} label="Listen" className="ml-auto" /> : null}
           </div>
           {r.hidden ? (
             <p className="text-sm text-muted">The text of this review is hidden ({r.hidden}). Its rating and proof still count.</p>

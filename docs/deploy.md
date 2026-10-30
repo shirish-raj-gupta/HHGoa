@@ -1,5 +1,8 @@
 # Deploying
 
+The deployment in use is one Vercel project for every app and the API, on Supabase: see
+[deploy-vercel.md](deploy-vercel.md). This page is the alternative, with the API and worker on a long-running Node host.
+
 | Piece | Where | Notes |
 |---|---|---|
 | Postgres (PostGIS + pgvector) | A managed Postgres with both extensions (Supabase and Neon offer both), or the `infra/postgres` image | `pnpm db:migrate && pnpm db:seed` once |

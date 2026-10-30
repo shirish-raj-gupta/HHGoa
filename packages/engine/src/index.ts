@@ -31,6 +31,7 @@ export * as admin from './admin';
 export { anchorPending } from './reviews';
 export * as maps from './google';
 export * as billing from './billing';
+export * as speech from './speech';
 export * as demo from './demo';
 export * as notify from './notify';
 export { investigate, decideFlag, type CaseFile } from './investigator';

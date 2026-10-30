@@ -4,8 +4,8 @@ import { expect, test as base, type Page } from '@playwright/test';
 export const WEB = 'http://localhost:3100';
 // The business app is a zone of the reviewer site: /business on the same origin (its own server runs on 3101).
 export const BUSINESS = 'http://localhost:3100/business';
-export const STAGE = 'http://localhost:3102';
-export const ADMIN = 'http://localhost:3103';
+export const STAGE = 'http://localhost:3102/stage';
+export const ADMIN = 'http://localhost:3103/admin';
 export const API = 'http://localhost:8799';
 
 // Console lines from the dev tooling that say nothing about the app (Next's dev client logs its COOP check on any

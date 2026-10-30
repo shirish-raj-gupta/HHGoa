@@ -89,7 +89,16 @@ export async function createDb(opts: { url?: string | null } = {}): Promise<Db> 
 
 async function createPgDb(url: string): Promise<Db> {
   const pg = (await import('pg')).default;
-  const pool = new pg.Pool({ connectionString: url, max: Number(process.env.DATABASE_POOL_SIZE ?? 10) });
+  // TLS to a hosted database. Supabase signs with its own CA: give it as DATABASE_CA_CERT (PEM) to verify the server,
+  // or end the URL with sslmode=no-verify (encrypted, not verified). Neon's certificates verify as they are.
+  const ca = process.env.DATABASE_CA_CERT?.replace(/\\n/g, '\n');
+  let connectionString = url;
+  if (ca) {
+    const u = new URL(url);
+    u.searchParams.delete('sslmode');
+    connectionString = u.toString();
+  }
+  const pool = new pg.Pool({ connectionString, ...(ca ? { ssl: { ca } } : {}), max: Number(process.env.DATABASE_POOL_SIZE ?? 10) });
   const make = (client: Queryable, inTx: boolean): Db =>
     wrap(
       'pg',

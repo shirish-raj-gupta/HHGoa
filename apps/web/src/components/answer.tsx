@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowUpRight, ReceiptText, Store } from 'lucide-react';
 import type { Answer, AnswerOption } from '@receipts/client';
 import { WEB_URL } from '@/lib/env';
-import { EmptyState, RollingNumber, SpotlightCard, Stagger, StaggerItem, Stars, Tag } from '@receipts/react';
+import { EmptyState, ListenButton, RollingNumber, SpotlightCard, Stagger, StaggerItem, Stars, Tag, useSession } from '@receipts/react';
 
 /** Receipt links come back absolute; keep them inside the app when they point here. */
 export function receiptHref(url: string): string {
@@ -54,8 +54,8 @@ export function OptionCard({ option, rank, answerId, wallet }: { option: AnswerO
         {option.few_receipts ? <Tag tone="warn">few receipts so far</Tag> : null}
       </div>
       <ul className="space-y-2.5">
-        {option.claims.map((c) => (
-          <li key={c.text} className="border-l-2 border-brand-strong pl-3.5">
+        {option.claims.map((c, i) => (
+          <li key={`${i}:${c.text}`} className="border-l-2 border-brand-strong pl-3.5">
             <p className="font-serif text-[1.2rem] leading-snug italic">“{c.text}”</p>
             <span className="mt-1.5 flex flex-wrap gap-1.5">
               {c.receipts.slice(0, 3).map((r, i) => (
@@ -85,9 +85,11 @@ export function OptionCard({ option, rank, answerId, wallet }: { option: AnswerO
 }
 
 export function AnswerView({ answer, wallet }: { answer: Answer; wallet?: string | null }) {
+  const { client, config } = useSession();
   return (
     <div className="space-y-4">
       <p className="max-w-3xl text-base leading-relaxed">{answer.summary}</p>
+      {config?.speech?.on ? <ListenButton src={client.speechUrl('answers', answer.answer_id)} label="Listen to the answer" /> : null}
       {answer.not_enough_receipts ? (
         <EmptyState icon={<ReceiptText />} title="Not enough receipts yet">
           Nothing can be ranked for this until buyers review it. Bought one? Write the first review.

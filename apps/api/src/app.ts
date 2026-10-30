@@ -9,6 +9,7 @@ import { merchantRoutes } from './routes/merchant';
 import { publicRoutes } from './routes/public';
 import { reviewerRoutes } from './routes/reviewer';
 import { webhookRoutes } from './routes/webhooks';
+import { runDueJobs } from './cron';
 
 function originOf(url: string): string {
   try {
@@ -51,6 +52,14 @@ export async function createApp(e: Engine, x402: X402 | null) {
 
   app.get('/', (c) => c.text('Receipts API. Agents: MCP at /mcp, x402 at /v1/answer. Humans: https://github.com/ (see README).'));
   app.get('/health', (c) => ok(c, { ok: true, chain: e.chain.mode, anchored: e.chain.enabled, x402: !!x402, llm: e.llm.provider, db: e.db.kind }));
+
+  // Vercel Cron (vercel.json) runs the background jobs here, since a function has no timer of its own: the path says how
+  // often the cron fires, and every job due in that window runs. Vercel signs each call with CRON_SECRET.
+  app.get('/v1/cron/:minutes', async (c) => {
+    if (!e.env.CRON_SECRET || c.req.header('authorization') !== `Bearer ${e.env.CRON_SECRET}`) throw new UserError('Only Vercel Cron calls this.', 401, 'cron');
+    const minutes = Math.min(1440, Math.max(1, Number(c.req.param('minutes')) || 1440));
+    return ok(c, { ran: await runDueJobs(e, minutes) });
+  });
 
   app.route('/v1/auth', authRoutes(e));
   // Before the public routes: their GET /v1/merchants/:id would otherwise answer /v1/merchants/mine and /search.

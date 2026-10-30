@@ -35,10 +35,10 @@ function OptionCard({ option, rank }: { option: AnswerOption; rank: number }) {
         {option.still_good_next_day !== null ? <Tag>{Math.round(option.still_good_next_day * 100)}% still good next day</Tag> : null}
         {option.few_receipts ? <Tag tone="warn">few receipts so far</Tag> : null}
       </Row>
-      {option.claims.map((c) => {
+      {option.claims.map((c, i) => {
         const id = c.receipts[0] ? receiptIdFromUrl(c.receipts[0]) : null;
         return (
-          <Pressable key={c.text} onPress={id ? () => router.push(`/r/${id}`) : undefined}>
+          <Pressable key={`${i}:${c.text}`} onPress={id ? () => router.push(`/r/${id}`) : undefined}>
             <P size={14}>
               “{c.text}” {id ? <Text style={{ color: t.accent }}>receipt ›</Text> : null}
             </P>

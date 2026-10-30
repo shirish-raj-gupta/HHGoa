@@ -285,6 +285,10 @@ export class ReceiptsClient {
     return this.get<{ payload: string }>(`/v1/receipt-codes/${encodeURIComponent(code)}`);
   }
   /** A Google map image around a point (proxied by the API, which holds the key). */
+  /** An mp3 of a published review or answer, read aloud (when the server has read-aloud on). */
+  speechUrl(kind: 'reviews' | 'answers', id: string) {
+    return `${this.baseUrl}/v1/speech/${kind}/${encodeURIComponent(id)}`;
+  }
   staticMapUrl(lat: number, lng: number, zoom = 16) {
     return `${this.baseUrl}/v1/maps/static?lat=${lat}&lng=${lng}&zoom=${zoom}`;
   }

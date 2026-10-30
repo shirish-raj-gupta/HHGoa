@@ -12,6 +12,7 @@ For coding agents and new teammates. Read README.md first for the layout.
 - Next.js builds: `pnpm --filter @receipts/web build` (scripts already wrap `cross-env NODE_ENV=production`, needed
   because this machine's shell exports `NODE_ENV=development`).
 - After stopping a dev server, check its port: stopped tasks can leave the node child running.
+- `pnpm rehearse` before a demo (keys, wallet gas, the agent's USDC, TigerGraph, warmed answers; reads only).
 - The development database (`.data/pglite`) takes one process at a time: the opener keeps its pid in
   `.data/pglite.lock`, and any other process stops after ten seconds (two writers once damaged it past opening). If it
   will not open, move the folder aside; the API migrates and seeds a new one on start. `PGLITE_DEBUG=1` shows why.
@@ -28,8 +29,16 @@ For coding agents and new teammates. Read README.md first for the layout.
   business app is a Next.js zone of the web app (`basePath: '/business'`, proxied by `apps/web/next.config.ts` from
   `BUSINESS_ZONE_URL`, default :3001), so both share one origin: one device wallet, one Privy login, one token. Link
   into it with a plain URL (`MERCHANT_URL`), not `next/link`, since crossing zones is a full page load.
+- Vercel (`vercel.json`, `docs/deploy-vercel.md`): one project and one domain; the API at `/v1`, `/mcp`, `/go`, `/health`
+  (`apps/api/src/vercel.ts`), the business app at `/business`, the stage at `/stage` and the admin console at `/admin`
+  (their `basePath`, also locally). Public URLs come from the deployment's domain; server code reaches the API through
+  the `API_INTERNAL_URL` and `RECEIPTS_API_URL` bindings. Migrations are embedded (`pnpm --filter @receipts/db
+  migrations:gen` after changing one) and jobs run from Vercel Cron at `/v1/cron/:minutes`. The database is Supabase's
+  transaction pooler in Paris, and the functions run beside it (`regions: ["cdg1"]`); move both together.
 - There is no route or function that lets a merchant delete, hide, edit or re-rank a review. Do not add one.
-- Pay never depends on rating; rankings never read affiliate data.
+- Pay never depends on rating; rankings never read affiliate data. Both are tests in `packages/engine/test/loop.test.ts`.
+- The paid-review disclosure is `PAID_REVIEW_DISCLOSURE` (`packages/core/src/answer.ts`), the spec's words exactly: on
+  every receipt page, payout screen and buy link (`/go/:item` shows it before the store opens). Use the constant.
 - Anchoring can wait; publishing cannot. If the relayer is out of gas or Base does not answer, a review publishes with
   its signed attestation kept (`reviews.anchor`, 7-day deadline) and the anchor-pending job submits it; claims and
   replies complete without their attestation. A revert still fails. RPCs fall back across public endpoints.
@@ -72,6 +81,8 @@ For coding agents and new teammates. Read README.md first for the layout.
 - QR codes are never styled: `QRCodeSVG {...QR_PROPS}` inside `ScanFrame` (black on white, four-module margin, no
   clay, glass or tint), and they carry short links (`/go/proof/<id>`, `/scan?c=<id>`), never a whole signed payload.
   Keep a QR at 41 modules or fewer and 4px or more a module on screen.
+- Read-aloud (`ListenButton`, Smallest AI through `/v1/speech/reviews|answers/:id`) speaks only what Receipts published,
+  looked up by id, never text a caller sends; it shows only when `config.speech.on`. A simulated review says so first.
 - Places come from Google Maps through the API (`packages/engine/src/google.ts`, key server-side only; map images
   through `/v1/maps/static`). Say "Places from Google Maps" wherever Google results are shown.
 - The stage starts dark for projectors (`themeScript('dark')`); the other apps follow the system until toggled. Display
@@ -92,5 +103,5 @@ For coding agents and new teammates. Read README.md first for the layout.
 | Scoring and trust | `packages/core/src/scoring.ts`, `packages/engine/src/{trust,graph,investigator}.ts` |
 | Paid tools | `packages/engine/src/mcp/server.ts`, `apps/api/src/routes/agent.ts` |
 | Contracts | `packages/contracts/src/*.sol`, tests in `packages/contracts/test` |
-| Admin console | `apps/admin` (port 3003), `packages/engine/src/admin.ts`, `apps/api/src/routes/admin.ts` |
+| Admin console | `apps/admin` (:3003/admin), `packages/engine/src/admin.ts`, `apps/api/src/routes/admin.ts` |
 | Places and cities | `packages/engine/src/{google,cities,places}.ts` |

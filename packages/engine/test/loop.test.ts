@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { generatePrivateKey, privateKeyToAccount, type PrivateKeyAccount } from 'viem/accounts';
 import { keccak256, toBytes, type Hex } from 'viem';
-import { merchantIdFor, merchantReceiptTypedData, typedDataFromJson, type MerchantReceipt } from '@receipts/core';
+import { merchantIdFor, merchantReceiptTypedData, newId, typedDataFromJson, type MerchantReceipt } from '@receipts/core';
 import { createEngine, demo, followups, identity, merchants, payouts, proofs, query, reviews, shop, trust, type Engine } from '../src';
 
 // The core loop, end to end, on PGlite + an in-memory chain with EAS and every Receipts contract deployed:
@@ -180,5 +180,41 @@ describe('the core loop', () => {
     const top = await query.answerQuestion(e, { query: 'best veg biryani under ₹400 near Calangute' }, { method: 'free', amountBase: 0n });
     expect(top.options.map((o) => o.merchant)).not.toContain('Golden Sands Grill (demo)');
     await demo.resetAttack(e);
+  });
+
+  // The two guarantees the spec makes about money (A22 tests 9 and 10).
+
+  it('rankings are identical with every affiliate table emptied: ranking never reads commission data', async () => {
+    const ask = async () => {
+      const a = await query.answerQuestion(e, { query: 'best veg biryani under ₹400 near Calangute' }, { method: 'free', amountBase: 0n });
+      return a.options.map((o) => [o.item_id, o.score, o.verified_reviews]);
+    };
+    const before = await ask();
+    expect(before.length).toBeGreaterThan(0);
+    await e.db.query('DELETE FROM affiliate_conversions');
+    await e.db.query('DELETE FROM affiliate_clicks');
+    await trust.runTrust(e, { onChainLevels: false });
+    expect(await ask()).toEqual(before);
+  });
+
+  it('pay is identical for the lowest and the highest rating when the citations are equal', async () => {
+    const pick = (order: 'ASC' | 'DESC') =>
+      e.db.one<{ id: string; reviewer_id: string; rating: number }>(
+        `SELECT r.id, r.reviewer_id, r.rating FROM reviews r WHERE r.status = 'active' ORDER BY r.rating ${order}, r.id LIMIT 1`,
+      );
+    const low = await pick('ASC');
+    const high = await e.db.one<{ id: string; reviewer_id: string; rating: number }>(
+      `SELECT r.id, r.reviewer_id, r.rating FROM reviews r WHERE r.status = 'active' AND r.reviewer_id <> $1 ORDER BY r.rating DESC, r.id LIMIT 1`,
+      [low.reviewer_id],
+    );
+    expect(high.rating).toBeGreaterThan(low.rating);
+    const answerId = newId('an');
+    await e.db.query(`INSERT INTO answers (id, tool, query, response, price_usdc, payment_method) VALUES ($1, 'search_receipts', 'equal pay check', '{}', 5000, 'credits')`, [answerId]);
+    await e.db.query('INSERT INTO citations (answer_id, review_id, weight) VALUES ($1, $2, 0.5), ($1, $3, 0.5)', [answerId, low.id, high.id]);
+    await payouts.accrueAnswer(e, answerId);
+    const paid = await e.db.query<{ reviewer_id: string; amount: string }>('SELECT reviewer_id, sum(amount)::text AS amount FROM ledger WHERE answer_id = $1 GROUP BY reviewer_id', [answerId]);
+    const amountOf = (reviewerId: string) => paid.find((p) => p.reviewer_id === reviewerId)?.amount;
+    expect(amountOf(low.reviewer_id)).toBeDefined();
+    expect(amountOf(low.reviewer_id)).toBe(amountOf(high.reviewer_id));
   });
 });

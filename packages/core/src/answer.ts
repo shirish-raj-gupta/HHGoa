@@ -59,5 +59,6 @@ export const Answer = z.object({
 });
 export type Answer = z.infer<typeof Answer>;
 
+/** The build spec's disclosure, word for word (A0 rule 11): on every receipt page, payout screen and buy link. */
 export const PAID_REVIEW_DISCLOSURE =
-  'Reviewers are paid when AI agents cite their reviews. Pay never depends on the rating. Some links may earn Receipts a commission; rankings never read commission data.';
+  'Reviewers are paid when AI agents use their reviews, whatever the rating. Receipts may earn a commission on purchases made through its links.';

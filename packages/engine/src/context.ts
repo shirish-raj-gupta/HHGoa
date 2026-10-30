@@ -22,7 +22,7 @@ export interface Engine {
 export class UserError extends Error {
   constructor(
     message: string,
-    readonly status: 400 | 401 | 402 | 403 | 404 | 409 | 413 | 422 | 429 | 502 = 400,
+    readonly status: 400 | 401 | 402 | 403 | 404 | 409 | 413 | 422 | 429 | 502 | 503 = 400,
     readonly code = 'bad_request',
   ) {
     super(message);

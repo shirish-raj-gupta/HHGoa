@@ -142,6 +142,14 @@ class OpenAiCompatLoop implements AgentLlm {
     private apiKey: string,
   ) {}
 
+  // OpenAI itself takes max_completion_tokens (its reasoning models, gpt-5 and the o-series, refuse max_tokens) and,
+  // for those models, a reasoning effort; other OpenAI-compatible servers still expect max_tokens.
+  private limit(tokens: number): Record<string, unknown> {
+    const openai = /\/\/api\.openai\.com\b/.test(this.baseUrl);
+    const reasoning = openai && /^(gpt-5|o\d)/.test(this.model);
+    return { [openai ? 'max_completion_tokens' : 'max_tokens']: tokens, ...(reasoning ? { reasoning_effort: 'low' } : {}) };
+  }
+
   async loop(req: LoopRequest): Promise<string> {
     const byName = new Map(req.tools.map((t) => [t.name, t]));
     const tools = req.tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.inputSchema } }));
@@ -153,7 +161,7 @@ class OpenAiCompatLoop implements AgentLlm {
       const res = await fetch(`${this.baseUrl.replace(/\/$/, '')}/chat/completions`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${this.apiKey}` },
-        body: JSON.stringify({ model: this.model, messages, tools, max_tokens: 4096 }),
+        body: JSON.stringify({ model: this.model, messages, tools, ...this.limit(4096) }),
         signal: AbortSignal.timeout(120_000),
       });
       const data = (await res.json().catch(() => ({}))) as { choices?: { message?: CompatMessage }[]; error?: { message?: string } };

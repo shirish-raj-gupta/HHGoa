@@ -15,7 +15,7 @@ const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['nor
 export const metadata: Metadata = {
   title: { default: 'Receipts · admin', template: '%s · Receipts admin' },
   description: 'Operator console: business claims, held reviews and trust flags, attestations waiting to anchor, Reclaim providers.',
-  icons: { icon: '/icon.svg', apple: '/apple-icon.png' },
+  icons: { icon: '/admin/icon.svg', apple: '/admin/apple-icon.png' },
   robots: { index: false, follow: false },
 };
 

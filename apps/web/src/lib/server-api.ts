@@ -2,7 +2,15 @@ import { ApiError, ReceiptsClient } from '@receipts/client';
 import { API_URL } from './env';
 
 // Server components read public data straight from the API, uncached: receipts change as follow-ups and replies land.
-export const serverClient = new ReceiptsClient({ baseUrl: API_URL, fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }) });
+// On Vercel they reach it inside the project through the API_INTERNAL_URL binding (vercel.json, read at request time);
+// elsewhere at its public address.
+export const serverClient = new ReceiptsClient({
+  baseUrl: process.env.API_INTERNAL_URL ?? API_URL,
+  fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+});
+
+/** For addresses the browser loads (map images, read-aloud audio): always the API's public address. */
+export const publicApi = new ReceiptsClient({ baseUrl: API_URL });
 
 export async function orNull<T>(p: Promise<T>): Promise<T | null> {
   try {

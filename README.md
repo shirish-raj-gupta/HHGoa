@@ -13,7 +13,7 @@ in-memory EVM, simulated purchases and mock humans, all labelled as such).
 
 ```bash
 pnpm install
-pnpm dev          # API :8787, reviewer web app :3000 (business app at :3000/business), stage :3002, admin :3003
+pnpm dev          # API :8787, reviewer web app :3000 (business app at :3000/business), stage :3002/stage, admin :3003/admin
 ```
 
 | Command | What it does |
@@ -28,6 +28,7 @@ pnpm dev          # API :8787, reviewer web app :3000 (business app at :3000/bus
 | `pnpm contracts:build` / `contracts:test` / `contracts:deploy` | solc-js build, tests on an in-memory EVM, deploy to Base Sepolia (`-- --skip-governance` for the core contracts only) |
 | `pnpm graph:setup` | Set up a TigerGraph Savanna workspace from `TIGERGRAPH_API_KEY`: database user, schema, queries, secret |
 | `pnpm graph:wake` | Resume the Savanna workspace (it pauses after an idle hour, and stays paused while its auto start is off); run it before a demo |
+| `pnpm rehearse` | Before the demo: the API's keys, the wallets' gas and the agent's USDC, TigerGraph, and the stage's three answers warmed; lists what to fix. `REHEARSE_API_URL=https://<domain>` checks a deployment. Reads only |
 | `pnpm --filter @receipts/worker once` | Run every job once (follow-ups, trust, graph sync, epoch, cashback, audio cleanup) |
 | `pnpm safe install` / `pnpm safe add <pkg>` | Install through Socket Firewall, which blocks known-malicious packages (no account needed) |
 | `pnpm security:scan` | A full Socket scan of every manifest (reads `SOCKET_CLI_API_TOKEN` from `.env`; a free socket.dev account) |
@@ -44,10 +45,12 @@ Copy `.env.example` to `.env` to turn integrations on. The API logs which ones a
 apps/
   api        Hono API: proof rails, reviews, identity, payouts, merchants, webhooks, x402 endpoints, MCP at /mcp
   worker     Cron jobs for production (development runs them inside the API)
-  web        Reviewer PWA (Next.js 16): ask, prove, record, sign, receipts, earnings, check-ins, badge, scan
+  web        Reviewer PWA (Next.js 16): ask, prove, record, sign, receipts, earnings, check-ins, badge, scan, and
+             /poster, the printable seeding poster
   merchant   Business dashboard: claim, insights, public replies, signed QR receipts, badge, plan. A zone of the
              web app: served at /business on its origin (own server :3001), so one account and one sign-in
-  demo       Stage: two agents side by side, the review-ring attack, the week in numbers, the sandbox pages
+  demo       Stage: two agents side by side, the review-ring attack, the week in numbers with a labelled Settle now
+             (the nightly payout epoch, run at once), the sandbox pages
   admin      Operator console: business claims, held reviews and trust flags, attestations waiting to anchor, providers
   mcp        Receipts MCP over stdio, an x402 paying bridge for MCP clients that cannot pay, the agent CLI
   mobile     Expo app (Android and iOS): the reviewer flow on a phone
@@ -96,12 +99,11 @@ With real accounts (October 2026): the contracts are deployed on Base Sepolia (`
 a review published over HTTP is attested there and verifies; Sarvam transcribes a spoken review (saaras:v3 and v4);
 reviews pin to IPFS through Pinata under the same CID we compute; Reclaim starts proof sessions for community
 Swiggy, Zomato and Amazon providers; Razorpay test mode creates the ₹1 merchant link; TigerGraph Savanna issues
-tokens from the API's secret; Gemini writes review cards, cited answers and runs both demo agents and the
-investigator's tool loop.
+tokens from the API's secret; OpenAI's gpt-5-nano (an AI Grants India key) writes review cards and cited answers and
+runs both demo agents, as Gemini did before it; Smallest AI reads published reviews and answers aloud.
 
 Not exercised yet: a real Reclaim proof end to end (the callback needs the API on a public URL), ZK Email
-blueprints, Self and Anon Aadhaar in production mode, Claude and OpenAI-compatible models (such as AI Grants
-India's), x402 settlement (the agent wallet needs test USDC), RazorpayX
-payouts, Dodo, the TigerGraph sync (waits on the schema grant), push notifications. The OpenAI-compatible provider
-is tested against a local stand-in server. Each has a labelled fallback so the product still runs. Self now calls
+blueprints, Self and Anon Aadhaar in production mode, Claude, x402 settlement (the agent wallet needs test USDC),
+RazorpayX payouts, Dodo, the TigerGraph sync (waits on the schema grant), push notifications. Each has a labelled
+fallback so the product still runs. Self now calls
 its open-source SDK legacy (no shutdown date given); Anon Aadhaar is the alternative.

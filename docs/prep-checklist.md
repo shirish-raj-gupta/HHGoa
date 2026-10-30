@@ -22,6 +22,12 @@ variables it fills; everything not done keeps its labelled fallback.
 - `ANTHROPIC_API_KEY` (or `GEMINI_API_KEY`): structuring, cited answers, the investigator, and both demo agents.
   Gemini's free tier allows only 20 requests a day on 3.6 Flash, which one afternoon of testing used up; turn on billing in AI
   Studio before the event (Tier 1 starts instantly), or use `GEMINI_MODEL=gemini-3.5-flash-lite`, which has its own quota.
+  Set up now (2026-10-30): the AI Grants India OpenAI key, as `LLM_PROVIDER=openai-compat` with `gpt-5-nano` at
+  `https://api.openai.com/v1` (Gemini stays in `.env` as the alternative). AI Grants blocks a key that appears in any
+  GitHub commit: keep it in `.env` only.
+- `SMALLEST_API_KEY` (AI Grants India voice credits): read-aloud of published reviews and answers with Smallest AI's
+  Lightning voices (Indian English and Hindi, plus Tamil, Telugu, Kannada, Malayalam, Marathi, Punjabi, Bengali, Odia and
+  Gujarati). Only published text is spoken, by id, and each clip is cached, so the credits go on new reviews only.
 
 ## 3. One human
 
@@ -53,7 +59,7 @@ variables it fills; everything not done keeps its labelled fallback.
   offers no UPI), so pay with the Razorpay test card 4100 2800 0000 1007, any future expiry and CVV, and any 4 to 10
   digit OTP. "Check now" asks Razorpay whether the link was paid, so it works on localhost without the webhook. A
   listing whose UPI ID is known still needs the payment from that UPI ID; otherwise approve it in the admin console.
-- Admin console (`apps/admin`, port 3003): `ADMIN_TOKEN` in `.env` is the password it asks for.
+- Admin console (`apps/admin`, localhost:3003/admin): `ADMIN_TOKEN` in `.env` is the password it asks for.
 - Affiliate networks: apply early (approval takes days). Until approved, `DEMO_MODE` uses the labelled test network.
 - Dodo Payments test mode: `DODO_API_KEY`, `DODO_WEBHOOK_SECRET`, products for credits and the merchant plan.
 

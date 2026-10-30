@@ -290,6 +290,18 @@ function rupees(minor: string | null): number | null {
   return minor === null ? null : Math.round(Number(minor) / 100);
 }
 
+/** One line per claim: when two reviews say the same thing (or a model repeats itself), the line cites both. */
+function mergeSameClaims<T extends { text: string; reviewIds: string[] }>(claims: T[]): T[] {
+  const byText = new Map<string, T>();
+  for (const c of claims) {
+    const key = c.text.trim().toLowerCase().replace(/[.!\s]+$/, '');
+    const seen = byText.get(key);
+    if (seen) seen.reviewIds = [...new Set([...seen.reviewIds, ...c.reviewIds])];
+    else byText.set(key, { ...c, reviewIds: [...c.reviewIds] });
+  }
+  return [...byText.values()];
+}
+
 function summaryTemplate(top: AnswerOption | undefined, f: QueryFilters): string {
   if (!top) return `Not enough receipts yet for ${f.item ?? 'that'}${f.place ? ` near ${f.place}` : ''}.`;
   const price = top.price_paid_inr ? `, buyers paid ₹${top.price_paid_inr.min}–₹${top.price_paid_inr.max}` : '';
@@ -371,6 +383,7 @@ export async function answerQuestion(e: Engine, input: AskInput, payment: AskPay
       const proposed = drafted?.options.find((o) => o.item_id === c.id)?.claims.map((x) => ({ text: x.text, reviewIds: x.review_ids })) ?? extractiveClaims(ev);
       let { kept } = validateClaims(proposed, evMap, { maxClaims: 5 });
       if (!kept.length) kept = validateClaims(extractiveClaims(ev), evMap, { maxClaims: 3 }).kept;
+      kept = mergeSameClaims(kept);
       for (const k of kept) for (const id of k.reviewIds) citedForWeights.push({ reviewId: id, trustWeight: evMap.get(id)!.trustWeight, relevance: 1 / (rank + 1) });
       const uidOf = (id: string) => ev.find((r) => r.id === id)?.eas_uid ?? id;
       const pmin = rupees(c.price_min_minor);

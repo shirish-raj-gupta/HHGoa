@@ -1,4 +1,8 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { MIGRATIONS } from '../src/migrations.generated';
 import { createDb, migrate, type Db } from '../src';
 import { seedAll } from '../src/seed';
 
@@ -12,6 +16,15 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await db?.close();
+});
+
+describe('migrations', () => {
+  it('embeds every migration file as it is (run pnpm --filter @receipts/db migrations:gen after changing one)', () => {
+    const dir = fileURLToPath(new URL('../migrations', import.meta.url));
+    const files = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
+    expect(MIGRATIONS.map((m) => m.name)).toEqual(files);
+    for (const m of MIGRATIONS) expect(m.sql, m.name).toBe(readFileSync(join(dir, m.name), 'utf8').replace(/\r\n/g, '\n'));
+  });
 });
 
 describe('schema and seeds', () => {

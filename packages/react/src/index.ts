@@ -3,6 +3,7 @@ export { Logo, LogoMark, Wordmark } from './brand';
 export { THEME_COLOR, THEME_KEY, themeScript, type ThemeName } from './theme-script';
 export { ThemeToggle } from './theme-toggle';
 export { CurtainFooter, type FooterIcon } from './footer';
+export { ListenButton } from './listen';
 export { Highlight, Orbs, RollingNumber, ShaderBackdrop, Signature, SpotlightCard, StackCards, TextRotate, type OrbColor, type OrbSpec } from './effects';
 export { CountUp, EASE_OUT, MotionProvider, Reveal, Stagger, StaggerItem } from './motion';
 export { WalletProvider, useWallet, type Wallet, type WalletKind } from './wallet';

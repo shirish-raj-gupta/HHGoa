@@ -12,6 +12,7 @@
   },
   "scripts": {
     "migrate": "tsx src/cli.ts migrate",
+    "migrations:gen": "tsx scripts/gen-migrations.ts",
     "seed": "tsx src/cli.ts seed",
     "reset": "tsx src/cli.ts reset",
     "osm": "tsx scripts/osm-import.ts",

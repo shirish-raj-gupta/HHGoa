@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { admin, anchorPending, billing, decideFlag, demo, followups, investigate, merchants, payouts, shop, syncGraph, trust, type Engine } from '@receipts/engine';
+import { UserError, admin, anchorPending, billing, decideFlag, demo, followups, investigate, merchants, payouts, shop, syncGraph, trust, type Engine } from '@receipts/engine';
 import { body, ok, requireAdmin, type Env } from '../http';
 
 // Stage and operator controls. Protected by ADMIN_TOKEN (open on a local machine without one). Every action is
@@ -27,6 +27,12 @@ export function adminRoutes(e: Engine) {
   app.post('/trust', async (c) => ok(c, await trust.runTrust(e, { onChainLevels: true })));
   app.post('/graph-sync', async (c) => ok(c, (await syncGraph(e)) ?? { skipped: 'TigerGraph not configured' }));
   app.post('/epoch', async (c) => ok(c, await payouts.buildEpoch(e, { post: true })));
+  // The stage's Settle now (DEMO_MODE only): every accrued balance goes into a USDC root at once instead of nightly,
+  // labelled as a demo settlement.
+  app.post('/settle-now', async (c) => {
+    if (!e.env.DEMO_MODE) throw new UserError('Settle now is a demo control (DEMO_MODE).', 403, 'demo_only');
+    return ok(c, { label: 'Demo settlement', ...(await payouts.buildEpoch(e, { post: true })) });
+  });
 
   app.get('/flags', async (c) => ok(c, await e.db.query(`SELECT * FROM flags ORDER BY created_at DESC LIMIT 100`)));
   app.post('/flags/:id/investigate', async (c) => ok(c, await investigate(e, c.req.param('id'))));

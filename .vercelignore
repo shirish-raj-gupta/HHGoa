@@ -1,0 +1,15 @@
+# Never upload local settings or data with `vercel deploy`: the apps read the root .env when it exists, so a stray one
+# would point the deployment at localhost and ship secrets. The project's environment variables are the settings.
+.env
+.env.*
+!.env.example
+.data/
+docs/private/
+
+# Build output and test artefacts
+node_modules/
+**/.next/
+**/.expo/
+e2e/report/
+e2e/results/
+*.tsbuildinfo

@@ -1,6 +1,7 @@
 import { keccak256, toBytes, getAddress, type Address, type Hex } from 'viem';
 import { nullifierToBytes32, reviewerIdFromNullifier } from '@receipts/core';
 import { UserError, type Engine } from './context';
+import { loadAnonAadhaarCore } from './vendor/anon-aadhaar';
 
 // Prove one human, once. Receipts stores a nullifier hash, the document type, the verification time and a wallet;
 // never the Aadhaar number, a name, a photo or passport data. The verifier key then registers
@@ -146,9 +147,8 @@ interface AnonAadhaarCoreModule {
  * the signal, and that the QR was signed within the last hour (blocks farms of old photocopied QRs).
  */
 export async function verifyAnonAadhaar(e: Engine, input: { pcd: string; wallet: string }) {
-  // @anon-aadhaar/core ships TypeScript sources as its types; a non-literal specifier keeps them out of our typecheck.
-  const spec = '@anon-aadhaar/core';
-  const core = (await import(spec)) as AnonAadhaarCoreModule;
+  // @anon-aadhaar/core ships TypeScript sources as its types; the plain-JS loader keeps them out of our typecheck.
+  const core = (await loadAnonAadhaarCore()) as AnonAadhaarCoreModule;
   await core.init({
     wasmURL: core.artifactUrls.v2.wasm,
     zkeyURL: core.artifactUrls.v2.zkey,
