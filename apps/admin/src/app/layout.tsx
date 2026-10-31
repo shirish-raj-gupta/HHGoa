@@ -13,9 +13,9 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', 
 const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'], variable: '--font-instrument', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'Receipts · admin', template: '%s · Receipts admin' },
+  title: { default: '₹eceipt · admin', template: '%s · ₹eceipt admin' },
   description: 'Operator console: business claims, held reviews and trust flags, attestations waiting to anchor, Reclaim providers.',
-  icons: { icon: '/admin/icon.svg', apple: '/admin/apple-icon.png' },
+  icons: { icon: { url: '/admin/icon.svg?v=rupee-1', type: 'image/svg+xml', sizes: 'any' }, apple: '/admin/apple-icon.png?v=rupee-1' },
   robots: { index: false, follow: false },
 };
 

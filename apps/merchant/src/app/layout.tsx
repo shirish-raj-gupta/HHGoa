@@ -13,9 +13,9 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', 
 const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'], variable: '--font-instrument', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'Receipts for business', template: '%s · Receipts for business' },
+  title: { default: '₹eceipt for business', template: '%s · ₹eceipt for business' },
   description: 'Claim your listing, reply in public, see what verified buyers and AI agents say about you, and issue signed receipts.',
-  icons: { icon: '/business/icon.svg', apple: '/business/apple-icon.png' },
+  icons: { icon: { url: '/business/icon.svg?v=rupee-1', type: 'image/svg+xml', sizes: 'any' }, apple: '/business/apple-icon.png?v=rupee-1' },
 };
 
 export const viewport: Viewport = {

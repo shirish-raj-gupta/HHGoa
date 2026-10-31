@@ -13,9 +13,9 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains', 
 const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['normal', 'italic'], variable: '--font-instrument', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'Receipts · stage',
+  title: '₹eceipt · stage',
   description: 'The poisoned web against verified receipts, the attack, and the week in numbers.',
-  icons: { icon: '/stage/icon.svg', apple: '/stage/apple-icon.png' },
+  icons: { icon: { url: '/stage/icon.svg?v=rupee-1', type: 'image/svg+xml', sizes: 'any' }, apple: '/stage/apple-icon.png?v=rupee-1' },
   robots: { index: false },
 };
 

@@ -14,11 +14,11 @@ const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: ['nor
 
 export const metadata: Metadata = {
   metadataBase: new URL(WEB_URL),
-  title: { default: 'Receipts · No receipt, no review.', template: '%s · Receipts' },
+  title: { default: '₹eceipt · No Receipt, No Review', template: '%s · ₹eceipt' },
   description: 'Verified voice reviews of anything you bought, from verified unique humans, that anyone can re-check. AI agents pay to cite them; reviewers get paid.',
-  applicationName: 'Receipts',
-  appleWebApp: { capable: true, title: 'Receipts', statusBarStyle: 'default' },
-  icons: { icon: '/icon.svg', apple: '/apple-icon.png' },
+  applicationName: '₹eceipt',
+  appleWebApp: { capable: true, title: '₹eceipt', statusBarStyle: 'default' },
+  icons: { icon: { url: '/icon.svg?v=rupee-1', type: 'image/svg+xml', sizes: 'any' }, apple: '/apple-icon.png?v=rupee-1' },
 };
 
 export const viewport: Viewport = {
