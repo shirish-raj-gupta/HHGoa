@@ -21,6 +21,9 @@ allowBuilds:
 overrides:
   "@zk-email/helpers>snarkjs": "^0.7.5"
   "@selfxyz/common>node-forge": "^1.3.1"
+  # @selfxyz/common lists the npm `fs` placeholder (0.0.1-security) which returns HTTP 403 on CI.
+  # It's a Node built-in; stub it out so pnpm never fetches the tarball.
+  "@selfxyz/common>fs": "link:"
   # tevm (in-memory EVM for contract tests and CHAIN=local): @tevm/actions rc.153 imports an error class no
   # published @tevm/errors 1.x has, so the whole set stays on rc.151.
   "@tevm/actions": "1.0.0-rc.151"

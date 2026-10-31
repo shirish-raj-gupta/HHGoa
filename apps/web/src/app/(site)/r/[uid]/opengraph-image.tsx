@@ -1,0 +1,125 @@
+import { ImageResponse } from 'next/og';
+import { orNull, serverClient } from '@/lib/server-api';
+
+export const alt = 'Receipts — verified purchase review';
+export const size = { width: 1200, height: 630 };
+export const contentType = 'image/png';
+
+// Skin palette colours (light theme)
+const BG = '#f3e7d7';
+const SURFACE = '#fcf7f0';
+const INK = '#02142d';
+const MUTED = '#02142d99';
+const BRAND_STRONG = '#3a8f10'; // rupee sign colour on skin
+const BRAND = '#95f64b';
+
+// Fetch Outfit (display) at build time for OG rendering.
+const outfitBold = fetch('https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4e81MKJpamR2u68.ttf').then((r) => r.arrayBuffer());
+
+export default async function OGImage({ params }: { params: Promise<{ uid: string }> }) {
+  const { uid } = await params;
+  const r = await orNull(serverClient.receipt(uid));
+  if (!r) {
+    return new ImageResponse(
+      (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', background: BG, color: INK, fontSize: 48, fontFamily: 'Outfit' }}>
+          Receipt not found
+        </div>
+      ),
+      { ...size, fonts: [{ name: 'Outfit', data: await outfitBold, weight: 700 as const }] },
+    );
+  }
+
+  const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+  const claim = r.claims?.[0] ?? r.summary_en ?? '';
+
+  return new ImageResponse(
+    (
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', background: BG, fontFamily: 'Outfit' }}>
+        {/* ── Header bar ── */}
+        <div style={{ display: 'flex', alignItems: 'center', padding: '28px 48px', gap: '16px' }}>
+          {/* ₹eceipt wordmark rendered inline — rupee in brand-strong, letters in ink */}
+          <svg viewBox="0 0 1403 456" height="44" style={{ flexShrink: 0 }}>
+            <path
+              d="M12.1 26L23.9 0L143 0.1L262 0.1L250.5 26.7L239 53.2L210.7 54.1L182.4 55L189.2 69L196 83.1L229 83.5L262 84L250.6 110.5L239.2 137L217.6 137.6L196 138.2L189.6 154.1Q183.1 170 173.1 181.6Q163 193.2 148.5 202.2Q134 211.2 112.3 217.1L90.5 223L152.8 288.7Q215 354.4 219.4 359.2L223.8 364L223.4 364.8L223 365.5L180 365.3L136.9 365L74.5 295.6L12 226.3L12 199.1L12 172L33.5 171.6Q55 171.3 69 169.3Q83 167.4 89.2 165.2Q95.4 163 102.1 159Q108.8 155 113.8 147.5L118.9 140L117.4 138.9Q116 137.9 58.1 137.4L0.2 137L12.1 110.4L24 83.9L71.5 82.9L119 82L117.1 78Q115.3 74 111.1 70Q106.9 66 97.5 61.9Q88 57.9 71 56Q54 54.1 27.5 53.9L1 53.8L0.6 52.9L0.2 52L12.1 26Z"
+              fill={BRAND_STRONG}
+              fillRule="evenodd"
+            />
+            <path
+              d="M920.8 43Q927.5 40 935.8 39.8Q944 39.6 950.5 42.2Q957 44.8 963.3 50.9Q969.6 57 972.5 63.5Q975.4 70 975.5 79Q975.5 88 972.9 94Q970.4 100 965.2 105.6Q960 111.3 952.5 114.8Q945 118.4 936.5 118.4Q928 118.5 921 115.4Q914 112.3 908.3 106.6Q902.7 101 899.9 94Q897.1 87 897 79.5Q896.9 72 899.9 64.5Q902.9 57 908.4 51.5Q914 45.9 920.8 43ZM1286.4 123.5L1286.4 88L1319.7 87.6L1353 87.1L1353.4 123.1L1353.9 159L1374.4 159.7L1395 160.4L1395 185.7L1395 211L1375 211.3L1355 211.5L1354.4 213.3Q1353.8 215 1353.9 244Q1353.9 273 1354.8 281Q1355.8 289 1357.6 292.5Q1359.3 296 1362.7 298.2Q1366 300.3 1369.5 300.3Q1373 300.4 1379.7 298.2L1386.4 296L1394.5 322.5L1402.5 349L1397.8 351.6Q1393 354.1 1377 357.7Q1361 361.3 1352.5 361.2Q1344 361.1 1336.5 359.8Q1329 358.4 1318.5 352.5Q1308 346.7 1303.8 341.9Q1299.6 337 1295.6 329Q1291.7 321 1289.1 308Q1286.5 295 1286.4 253.5L1286.2 212L1272.6 211.8L1259 211.5L1258.6 210.8Q1258.2 210 1258.4 185L1258.6 160L1272.5 159.5L1286.4 159L1286.4 123.5ZM324.4 157.4Q335.7 155 355.4 155.8Q375 156.5 386.5 160.2Q398 163.8 406.5 168.7Q415 173.5 421.6 179.3Q428.1 185 433.3 191.5Q438.4 198 442.9 207.5Q447.4 217 449.4 224.5Q451.3 232 452.4 245Q453.6 258 452.8 262.7L452 267.4L381.7 267.7L311.5 268L312.6 275.5Q313.8 283 316.7 288Q319.5 293 329.3 299.2Q339 305.4 346.5 306.5Q354 307.5 364 306.4Q374 305.3 379.5 302.7Q385 300.1 393.5 293.2L402 286.4L425.7 298.2L449.4 310L445.3 316.5Q441.2 323 433.6 330.6Q426 338.3 416 344.4Q406 350.5 394 354.4Q382 358.3 368 359.9Q354 361.4 343.5 360.9Q333 360.4 322 357.9Q311 355.3 301.5 350.8Q292 346.3 282.5 338.9Q273 331.5 265.9 323.2Q258.7 315 254.8 308.5Q250.8 302 247.2 292Q243.7 282 242.4 270Q241.2 258 241.9 248.5Q242.7 239 244.6 231.5Q246.6 224 252.6 212.5Q258.7 201 265.8 192.7Q273 184.5 282.5 177.1Q292 169.7 302.5 164.7Q313 159.8 324.4 157.4ZM554.8 157.4Q565.7 155 578.8 154.8Q592 154.6 599.5 155.6Q607 156.6 620 160.6Q633 164.7 638.8 168.9L644.7 173L633.3 195.7L622 218.4L611.5 214.5Q601 210.5 594.5 210Q588 209.5 581.5 210.6Q575 211.7 568.5 215.2Q562 218.7 558.3 222.4Q554.5 226 551 231Q547.6 236 545.6 242Q543.6 248 543.2 253.5Q542.7 259 544.2 267Q545.7 275 548.6 280.5Q551.5 286 557.8 292.2Q564 298.4 570 301.2Q576 304.1 582.5 305.2Q589 306.3 599 304.7Q609 303.1 615.5 300.3L622 297.4L623.1 299.2Q624.2 301 634.4 322.5L644.6 344L638.3 347.7Q632 351.4 618.5 355.3Q605 359.3 593.5 360.4Q582 361.5 569 360.4Q556 359.3 540.5 353.2Q525 347.2 518.5 342.8Q512 338.4 503.3 330.2Q494.6 322 488.2 312.5Q481.7 303 477.7 292.5Q473.6 282 472.6 276Q471.6 270 471.6 258Q471.6 246 474.7 234Q477.7 222 482.4 213.2Q487 204.4 495.5 194.4Q504 184.5 513.5 177.1Q523 169.8 533.5 164.8Q544 159.7 554.8 157.4ZM741.6 157.4Q753.2 155 773.1 155.8Q793 156.7 804 160.2Q815 163.7 823 168.2Q831 172.7 839.6 180.3Q848.2 188 852.2 193.5Q856.3 199 862.3 214.5Q868.3 230 869.4 241.5Q870.5 253 869.8 260.2L869 267.4L798.8 267.7L728.7 268L729.6 275Q730.6 282 732.2 285.5Q733.8 289 738.1 293.5Q742.3 298 749.1 301.6Q756 305.3 763.5 306.4Q771 307.5 781 306.5Q791 305.4 796.5 302.8Q802 300.3 810.5 293.3L819 286.4L842.8 298.2L866.6 310L863 316Q859.4 322 851.2 330.2Q843 338.5 832.5 344.7Q822 351 810.5 354.7Q799 358.4 785 359.9Q771 361.4 760.5 360.9Q750 360.4 739 357.8Q728 355.3 719.5 351.2Q711 347.2 704.5 342.8Q698 338.3 688.9 329.1Q679.7 320 673.7 310.5Q667.7 301 664.2 291Q660.7 281 659.7 263.5Q658.8 246 661.2 235.5Q663.6 225 669.1 214Q674.5 203 682.3 193.8Q690 184.7 700.5 176.6Q711 168.6 720.5 164.2Q730 159.9 741.6 157.4ZM1131.3 155.8Q1136.6 155 1151.8 155.4Q1167 155.8 1179 159.7Q1191 163.6 1200.4 169.8Q1209.8 176 1219 186.5Q1228.3 197 1234.4 209.5Q1240.5 222 1242.9 234Q1245.3 246 1244.9 261Q1244.4 276 1240.8 289Q1237.3 302 1231.2 312.5Q1225.2 323 1217.6 331.2Q1210 339.5 1201.5 345.3Q1193 351.2 1182 355.3Q1171 359.3 1158 360.4Q1145 361.5 1133.5 360Q1122 358.5 1112 354.5Q1102 350.5 1093.5 344.1L1085 337.7L1084.6 396.3L1084.2 455L1051.1 455.2L1018 455.3L1017.4 308.2L1016.7 161L1049.9 160.4L1083 159.8L1083.5 170.9L1084 182.1L1096 172.8Q1108 163.5 1117 160.1Q1126 156.7 1131.3 155.8ZM901.9 257.5L902.4 160L935.8 160.5L969.3 161L968.7 258.4L968 355.8L934.8 355.4L901.5 355L901.9 257.5ZM336 200.9Q342 199 349.5 198.8Q357 198.7 364.5 201.3Q372 204 377.6 210Q383.2 216 385.1 222.8L387 229.7L350.5 229.7L314 229.7L314.3 225.4Q314.7 221 318.8 214.5Q322.9 208 326.4 205.4Q330 202.8 336 200.9ZM755.6 199.8Q759.3 199 767.1 198.9Q775 198.7 782 201.3Q789 203.8 794.7 209.9Q800.4 216 802.5 222.5L804.5 229L767.8 229.3L731 229.7L732.3 223.3Q733.6 217 736.8 212.6Q740 208.2 746 204.4Q752 200.6 755.6 199.8ZM1116.9 214.3Q1126.8 212 1134.4 212.8Q1142 213.6 1149.5 217.3Q1157 221 1162.7 227.5Q1168.3 234 1170.9 242Q1173.4 250 1172.9 260.5Q1172.4 271 1168.7 278.5Q1165 286 1158 292.2Q1151 298.3 1143.5 300.8Q1136 303.3 1125.5 302.8Q1115 302.2 1107.5 298.3Q1100 294.4 1093.4 286.2Q1086.9 278 1084.8 268.5Q1082.7 259 1084.7 248.5Q1086.6 238 1090.6 232Q1094.6 226 1100.8 221.3Q1107 216.5 1116.9 214.3Z"
+              fill={INK}
+              fillRule="evenodd"
+            />
+          </svg>
+          <span style={{ fontSize: 16, color: MUTED, marginLeft: 4, letterSpacing: '0.05em' }}>VERIFIED PURCHASE REVIEW</span>
+        </div>
+
+        {/* ── Receipt card ── */}
+        <div style={{ display: 'flex', flex: 1, padding: '0 48px 40px', alignItems: 'center' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              background: SURFACE,
+              borderRadius: 28,
+              padding: '40px 48px',
+              boxShadow: '0 18px 40px rgba(2,20,45,0.12)',
+            }}
+          >
+            {/* Stars */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 16 }}>
+              <span style={{ fontSize: 36, color: '#f5a623', letterSpacing: '2px' }}>{stars}</span>
+              <span style={{ fontSize: 36, fontWeight: 700, color: INK }}>{r.rating}.0</span>
+              {r.simulated ? (
+                <span style={{ fontSize: 14, background: '#fde68a', color: '#92400e', padding: '4px 12px', borderRadius: 99, marginLeft: 12 }}>simulated</span>
+              ) : (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, background: `${BRAND}44`, color: BRAND_STRONG, padding: '4px 12px', borderRadius: 99, marginLeft: 12 }}>
+                  ✓ verified
+                </span>
+              )}
+            </div>
+
+            {/* Item name */}
+            <span style={{ fontSize: 48, fontWeight: 700, color: INK, lineHeight: 1.15 }}>
+              {r.item.name.length > 36 ? r.item.name.slice(0, 34) + '…' : r.item.name}
+            </span>
+
+            {/* Merchant */}
+            <span style={{ fontSize: 22, color: MUTED, marginTop: 8 }}>
+              at {r.merchant.name}
+            </span>
+
+            {/* Quote */}
+            {claim ? (
+              <span
+                style={{
+                  fontSize: 24,
+                  color: INK,
+                  marginTop: 24,
+                  fontStyle: 'italic',
+                  lineHeight: 1.4,
+                  borderLeft: `4px solid ${BRAND}`,
+                  paddingLeft: 20,
+                  opacity: 0.85,
+                }}
+              >
+                "{claim.length > 100 ? claim.slice(0, 98) + '…' : claim}"
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        {/* ── Footer tagline ── */}
+        <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: 24 }}>
+          <span style={{ fontSize: 15, color: MUTED, letterSpacing: '0.08em' }}>NO RECEIPT, NO REVIEW</span>
+        </div>
+      </div>
+    ),
+    {
+      ...size,
+      fonts: [{ name: 'Outfit', data: await outfitBold, weight: 700 as const }],
+    },
+  );
+}
+
