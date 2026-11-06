@@ -76,9 +76,11 @@ For the current test setup, the ignored `.env.dodo.vercel` contains only these f
 without changing unrelated project variables. The configured products are $1 USD per API-credit unit and $10 USD/month
 for business Pro. Keep this deployment in test mode.
 
-Razorpay variables are optional and should stay unset for the Dodo-only configuration. Its remaining adapter serves
-UPI reviewer withdrawals and the ₹1 business ownership check, not subscriptions or API credits. Dodo's settlement
-payouts go to the business's bank account; they do not replace reviewer UPI transfers. USDC claims remain available.
+Razorpay runs the business ₹1 UPI ownership check, which Dodo cannot do: Dodo never reports the payer's UPI ID, and its
+smallest INR payment is ₹5 and $0.50. Set `RAZORPAYX_KEY_ID` and `RAZORPAYX_KEY_SECRET` (test keys) to turn the check
+on; without them a business UPI claim waits for manual review. Leave `RAZORPAYX_ACCOUNT_NUMBER` unset unless RazorpayX
+is activated: it also turns on reviewer UPI withdrawals. Dodo's settlement payouts go to the business's bank account;
+they do not replace reviewer UPI transfers. USDC claims remain available.
 
 Leave these out: `PORT`, the `PUBLIC_*_URL` lines (they point at localhost), `RECEIPTS_API_URL` (the binding sets it),
 `DEPLOYER_PRIVATE_KEY` (only the contract scripts need it), and `SOCKET_CLI_*` (local tooling).
@@ -98,7 +100,8 @@ every screen.
   `https://hackerhousegoa-receipts.vercel.app/v1/dodo/webhook`.
   The endpoint must be publicly reachable without Vercel deployment protection. A return to `/business/billing` or
   `/developers?checkout=done` does not grant a plan or credits; only a verified webhook does.
-- If you deliberately enable the optional Razorpay adapter, its webhook is `https://<domain>/v1/razorpay/webhook`.
+- Razorpay (optional for the ₹1 check, since "Check now" asks Razorpay directly): webhook to
+  `https://<domain>/v1/razorpay/webhook` with the `payment_link.paid` event, its secret in `RAZORPAY_WEBHOOK_SECRET`.
 - Google Maps: the key is used only by the API; restrict it to the Places, Geocoding and Maps Static APIs.
 - Open `https://<domain>/health` first and wait for it: the first request migrates and seeds the empty database (a few
   seconds in the database's region). Then open `/`, `/business`, `/stage` and `/admin`.

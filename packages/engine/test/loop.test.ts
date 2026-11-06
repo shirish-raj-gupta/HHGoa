@@ -62,6 +62,10 @@ describe('the core loop', () => {
     expect(claim.payUrl).toBeNull();
     expect(claim.instructions).toContain('no payment is required');
     await expect(merchants.checkClaim(e, merchantKey.address, claim.claimId)).resolves.toMatchObject({ status: 'pending' });
+    // Without a GST lookup the claim waits for a person instead of erroring.
+    const gst = await merchants.startClaim(e, merchantKey.address, { merchantId, method: 'gst', gstin: '30ABCDE1234F1Z5' });
+    expect(gst.instructions).toContain('A person at Receipts');
+    await expect(merchants.checkClaim(e, merchantKey.address, gst.claimId)).resolves.toMatchObject({ status: 'pending' });
     const done = await merchants.approveClaim(e, claim.claimId, 'test');
     expect(done.status).toBe('verified');
     expect(done.easUid).toMatch(/^0x/);

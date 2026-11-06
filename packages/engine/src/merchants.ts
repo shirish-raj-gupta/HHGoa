@@ -141,8 +141,10 @@ export async function startClaim(e: Engine, wallet: string, input: { merchantId:
         ? `Pay ₹1 to ${e.env.RAZORPAY_CLAIM_VPA} with the note ${challenge} from the UPI ID your customers pay. A person at Receipts will review the payment and your ownership evidence.`
         : 'Automatic UPI ownership checks are not available here. Your claim is pending manual review by Receipts; no payment is required. A subscription payment does not verify business ownership.',
     domain: `Add a DNS TXT record on ${input.domain ?? 'your domain'} with the value ${challenge}, then press verify.`,
-    gst: `We will match GSTIN ${input.gstin ?? ''} to "${merchant.name}".`,
-    partner_portal: 'Prove your Swiggy or Zomato partner dashboard with Reclaim from the dashboard on your phone.',
+    gst: e.env.GST_API_URL
+      ? `We will match GSTIN ${input.gstin ?? ''} to "${merchant.name}".`
+      : `Automatic GSTIN checks are not available here. A person at Receipts will match GSTIN ${input.gstin ?? ''} to "${merchant.name}".`,
+    partner_portal: 'A person at Receipts reviews this claim and may ask to see your Swiggy or Zomato partner dashboard.',
   };
   return { claimId: id, method: input.method, challenge, payUrl, instructions: instructions[input.method] };
 }
@@ -174,7 +176,8 @@ export async function checkClaim(e: Engine, wallet: string, claimId: string) {
     ok = c.evidence.paid === true && (!merchant.upi_vpa || c.evidence.payerVpa === merchant.upi_vpa || nameMatches(String(c.evidence.payerName ?? ''), merchant.name));
     evidence = { payerVpa: c.evidence.payerVpa, payerName: c.evidence.payerName };
   } else if (c.method === 'gst') {
-    if (!e.env.GST_API_URL) throw new UserError('GST verification is not configured on this server.', 400, 'not_configured');
+    // No GST lookup configured: the claim waits for a person in the admin console instead of failing.
+    if (!e.env.GST_API_URL) return { claimId, status: 'pending' };
     const res = await fetch(`${e.env.GST_API_URL.replace(/\/$/, '')}/${encodeURIComponent(String(c.evidence.gstin))}`, {
       headers: e.env.GST_API_KEY ? { authorization: `Bearer ${e.env.GST_API_KEY}` } : {},
     });

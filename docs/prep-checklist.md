@@ -52,8 +52,8 @@ variables it fills; everything not done keeps its labelled fallback.
 
 Dodo handles API credit purchases and business Pro subscriptions. Its [payouts](https://docs.dodopayments.com/features/payouts/payout-structure)
 settle the business's sales to its bank account; they cannot replace reviewer UPI withdrawals or prove the UPI ID
-of a business claiming a listing. Leave the optional Razorpay settings unset to run Dodo billing with USDC claims
-and domain/manual business verification.
+of a business claiming a listing. Razorpay's ₹1 payment link does that check: set `RAZORPAYX_KEY_ID` and
+`RAZORPAYX_KEY_SECRET` (test mode). Without them, business UPI claims go to manual review in the admin console.
 
 1. Put a test-mode key in `DODO_API_KEY` and set `DODO_ENV=test_mode` in `.env` (both files are gitignored).
 2. Run `pnpm dodo:setup`. It creates or reuses a $1 USD one-time credit product and a monthly business Pro product,
