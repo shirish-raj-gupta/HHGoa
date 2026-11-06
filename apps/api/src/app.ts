@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { BaseError } from 'viem';
 import { ChainError, LlmRefusal, UserError, billing, type Engine, type X402 } from '@receipts/engine';
 import { body, ok, rateLimit, sessionMiddleware, type Env } from './http';
 import { adminRoutes } from './routes/admin';
@@ -42,9 +43,14 @@ export async function createApp(e: Engine, x402: X402 | null) {
       return c.json({ error: `On-chain step failed: ${err.message}`, code: 'chain' }, 502);
     }
     if (err instanceof LlmRefusal) return c.json({ error: err.message, code: 'llm_refusal' }, 422);
-    if (rpcUnreachable(err)) {
+    const down = unreachable(err);
+    if (down === 'chain') {
       e.log.warn(`${c.req.method} ${c.req.path}: Base RPC unreachable after retries and fallbacks`, err.message.split('\n')[0]);
       return c.json({ error: 'The Base network did not answer just now. Nothing was lost: try again in a moment.', code: 'chain_unavailable' }, 503);
+    }
+    if (down === 'upstream') {
+      e.log.warn(`${c.req.method} ${c.req.path}: an outside service did not answer`, err.message.split('\n')[0]);
+      return c.json({ error: 'A service Receipts relies on did not answer just now. Nothing was lost: try again in a moment.', code: 'upstream_unavailable' }, 503);
     }
     e.log.error(`${c.req.method} ${c.req.path}`, err);
     return c.json({ error: e.env.production ? 'Something went wrong.' : err.message, code: 'internal' }, 500);
@@ -87,12 +93,15 @@ export async function createApp(e: Engine, x402: X402 | null) {
   return app;
 }
 
-/** A Base RPC that could not be reached (viem's HttpRequestError, TimeoutError or a dropped connection), even when
- *  wrapped in a contract-call error: the person should try again, not read the request dump. */
-function rpcUnreachable(err: Error): boolean {
+/** A call that could not be reached (viem's HttpRequestError, TimeoutError or a dropped connection), even when wrapped in
+ *  a contract-call or SDK error: the person should try again, not read the request dump. 'chain' only when viem made the
+ *  call, since Dodo's, the LLM's and Google's SDKs wrap the same "fetch failed" and are not the Base network. */
+export function unreachable(err: Error): 'chain' | 'upstream' | null {
   const names = new Set(['HttpRequestError', 'TimeoutError', 'WebSocketRequestError']);
+  let viem = false;
   for (let cur: unknown = err, depth = 0; cur instanceof Error && depth < 6; cur = cur.cause, depth++) {
-    if (names.has(cur.name) || /fetch failed|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up/i.test(cur.message.split('\n')[0] ?? '')) return true;
+    viem ||= cur instanceof BaseError;
+    if (names.has(cur.name) || /fetch failed|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up/i.test(cur.message.split('\n')[0] ?? '')) return viem ? 'chain' : 'upstream';
   }
-  return false;
+  return null;
 }
