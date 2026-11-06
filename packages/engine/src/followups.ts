@@ -171,6 +171,18 @@ export async function fastForwardAnswer(e: Engine, followupId: string, input: { 
   await e.events.emit('followup.fast_forwarded', { followupId, stillGood: input.stillGood });
 }
 
+/** Demo mode only: a review's scheduled check-ins fall due now, so a rehearsal can show the reviewer answering one. */
+export async function bringForward(e: Engine, reviewRef: string) {
+  if (!e.env.DEMO_MODE) throw new UserError('Bringing check-ins forward is only available in demo mode.', 403);
+  const rows = await e.db.query<{ id: string }>(
+    `UPDATE followups SET due_at = now()
+      WHERE status = 'scheduled' AND review_id = (SELECT id FROM reviews WHERE id = $1 OR eas_uid = $1 LIMIT 1) RETURNING id`,
+    [reviewRef],
+  );
+  await e.events.emit('followup.brought_forward', { reviewRef, count: rows.length });
+  return { followupIds: rows.map((r) => r.id) };
+}
+
 /** Worker: nudge reviewers whose check-ins are due, then expire the ones whose window closed. */
 export async function followupTick(e: Engine): Promise<{ notified: number; expired: number }> {
   const due = await e.db.query<{ id: string; kind: string; reviewer_id: string; item: string; merchant: string }>(

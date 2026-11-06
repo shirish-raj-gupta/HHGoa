@@ -159,6 +159,9 @@ describe('the core loop', () => {
   it('the next-day follow-up is answered by the original reviewer, on-chain', async () => {
     const inbox = await followups.inbox(e, people[1]!.address);
     expect(inbox.length).toBe(0); // due tomorrow
+    // The demo control brings it forward, and it shows in the reviewer's inbox now.
+    await followups.bringForward(e, reviewUids[1]!);
+    expect(await followups.inbox(e, people[1]!.address)).toHaveLength(1);
     const fu = await e.db.one<{ id: string }>(`SELECT f.id FROM followups f JOIN reviews r ON r.id = f.review_id WHERE r.eas_uid = $1 AND f.kind = '1d'`, [reviewUids[1]]);
     const prepared = await followups.prepareFollowup(e, people[1]!.address, fu.id, { stillGood: true });
     const sig = await signEas(people[1]!, (prepared.signing as { typedData: string }).typedData);

@@ -64,6 +64,10 @@ export function adminRoutes(e: Engine) {
     await followups.fastForwardAnswer(e, c.req.param('id'), b);
     return ok(c, { ok: true, labelled: 'fast-forwarded for the demo' });
   });
+  app.post('/followups/due-now', async (c) => {
+    const b = await body<{ review: string }>(c);
+    return ok(c, { ...(await followups.bringForward(e, b.review)), labelled: 'brought forward for the demo' });
+  });
   app.post('/api-keys', async (c) => {
     const b = await body<{ email?: string; label?: string; creditsUsd?: number }>(c);
     const key = await billing.createApiKey(e, b);
